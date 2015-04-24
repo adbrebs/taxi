@@ -17,7 +17,7 @@ def add_extremities(stream, k):
     def extremities(x):
         return (x[id_polyline][:k], x[id_polyline][-k:])
     stream = Filter(stream, lambda x: len(x[id_polyline])>=k)
-    stream = Mapping(stream, extremeties, ('first_k', 'last_k'))
+    stream = Mapping(stream, extremities, ('first_k', 'last_k'))
     return stream
 
 def add_destination(stream):
