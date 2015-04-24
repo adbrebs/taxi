@@ -23,6 +23,7 @@ from blocks.extensions.saveload import Dump, LoadFromDump
 from blocks.extensions.monitoring import DataStreamMonitoring
 
 import data
+import transformers
 
 n_dow = 7       # number of division for dayofweek/dayofmonth/hourofday
 n_dom = 31
@@ -30,9 +31,8 @@ n_hour = 24
 
 n_clients = 57106
 n_stands = 63
-n_embed = n_clients + n_stands  # embeddings capturing local parameters
 
-n_begin_pts = 5     # how many points we consider at the beginning and end of the known trajectory
+n_begin_end_pts = 5     # how many points we consider at the beginning and end of the known trajectory
 n_end_pts = 5
 
 dim_embed = 50
@@ -45,19 +45,22 @@ def main():
     # The input and the targets
     x_firstk = tensor.matrix('first_k')
     x_lastk = tensor.matrix('last_k')
-    x_client = tensor.lmatrix('client')
-    y = tensor.vector('targets')
+    x_client = tensor.lmatrix('origin_call')
+    x_stand = tensor.lmatrix('origin_stand')
+    y = tensor.vector('destination')
 
     # Define the model
-    client_embed_table = LookupTable(length=n_clients, dim=dim_embed, name='lookup')
+    client_embed_table = LookupTable(length=n_clients+1, dim=dim_embed, name='client_lookup')
+    stand_embed_table = LookupTable(length=n_stands+1, dim=dim_embed, name='stand_lookup')
     hidden_layer = MLP(activations=[Rectifier()],
-                       dims=[(n_begin_pts + n_end_pts) * 2 + dim_embed, dim_hidden])
+                       dims=[n_begin_end_pts * 2 * 2 + dim_embed + dim_embed, dim_hidden])
     output_layer = Linear(input_dim=dim_hidden, output_dim=2)
 
     # Create the Theano variables
 
     client_embed = client_embed_table.apply(x_client).flatten(ndim=2)
-    inputs = tensor.concatenate([x_firstk, x_lastk, client_embed], axis=1)
+    stand_embed = stand_embed_table.apply(x_stand).flatten(ndim=2)
+    inputs = tensor.concatenate([x_firstk, x_lastk, client_embed, stand_embed], axis=1)
     hidden = hidden_layer.apply(inputs)
     outputs = output_layer.apply(hidden)
 
@@ -77,13 +80,17 @@ def main():
 
     # Load the training and test data
     train = data.train_data
-    stream = DataStream(train)
-    train_stream = Batch(stream, iteration_scheme=ConstantScheme(batch_size))
+    train = DataStream(train)
+    train = transformers.add_extremities(train, n_begin_end_pts)
+    train = transformers.add_destination(train)
+    train_stream = Batch(train, iteration_scheme=ConstantScheme(batch_size))
 
-    # valid = data.valid_data
-    # stream = DataStream(valid)
-    # valid_stream = Batch(stream, iteration_scheme=ConstantScheme(batch_size))
-    valid_stream = train_stream
+    valid = data.valid_data
+    valid = DataStream(valid)
+    valid = transformers.add_extremities(valid, n_begin_end_pts)
+    valid = transformers.add_destination(valid)
+    valid_stream = Batch(valid, iteration_scheme=ConstantScheme(batch_size))
+
 
     # Training
     cg = ComputationGraph(cost)
