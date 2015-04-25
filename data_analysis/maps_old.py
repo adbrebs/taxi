@@ -4,7 +4,7 @@ import cPickle
 import scipy
 
 print "Loading data..."
-with open("train_normal.pkl") as f: normal = cPickle.load(f)
+with open("../train_normal.pkl") as f: normal = cPickle.load(f)
 
 print "Extracting x and y"
 xes = [c[0] for l in normal for c in l[-1]]
