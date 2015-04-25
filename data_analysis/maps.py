@@ -38,12 +38,12 @@ def extract_coordinates(n_coordinates=None):
 
 def draw_map(coordinates, xrg, yrg):
 
+    print "Start drawing"
+    plt.figure(figsize=(30, 30), dpi=100, facecolor='w', edgecolor='k')
     hist, xx, yy = np.histogram2d(coordinates[:, 0], coordinates[:, 1], bins=2000, range=[xrg, yrg])
 
     plt.imshow(np.log(hist))
-    plt.savefig(data.DATA_PATH + "/analysis/xyhmap.pdf")
-
-    scipy.misc.imsave(data.DATA_PATH + "/analysis/xymap.png", np.log(hist))
+    plt.savefig(data.DATA_PATH + "/analysis/xyhmap2.png")
 
 
 if __name__ == "__main__":
