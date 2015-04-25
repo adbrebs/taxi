@@ -9,7 +9,7 @@ from fuel.iterator import DataIterator
 if socket.gethostname() == "adeb.laptop":
     DATA_PATH = "/Users/adeb/data/taxi"
 else:
-    PREFIX="/data/lisatmp3/auvolat/taxikaggle"
+    DATA_PATH="/data/lisatmp3/auvolat/taxikaggle"
 
 client_ids = {int(x): y+1 for y, x in enumerate(open(DATA_PATH+"/client_ids.txt"))}
 
