@@ -69,7 +69,7 @@ class TaxiData(Dataset):
     def __init__(self, pathes, has_header=False):
         if not isinstance(pathes, list):
             pathes=[pathes]
-        assert len(pathes)
+        assert len(pathes)>0
         self.pathes=pathes
         self.has_header=has_header
         super(TaxiData, self).__init__()
@@ -101,12 +101,12 @@ class TaxiData(Dataset):
             raise ValueError
         try:
             line=state.reader.next()
-        except StopIteration:
-            print state.index
+        except (ValueError, StopIteration):
+            # print state.index
             state.file.close()
             state.index+=1
             if state.index>=len(self.pathes):
-                raise
+                raise StopIteration
             state.file=open(self.pathes[state.index])
             state.reader=csv.reader(state.file)
             if self.has_header:
