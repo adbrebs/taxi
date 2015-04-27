@@ -21,7 +21,7 @@ from fuel.transformers import Batch
 from fuel.streams import DataStream
 from fuel.schemes import ConstantScheme
 
-from blocks.algorithms import GradientDescent, Scale, AdaDelta
+from blocks.algorithms import GradientDescent, Scale, AdaDelta, Momentum
 from blocks.graph import ComputationGraph
 from blocks.main_loop import MainLoop
 from blocks.extensions import Printing
@@ -45,13 +45,22 @@ n_end_pts = 5
 dim_embed = 50
 dim_hidden = 200
 
-learning_rate = 0.01
+learning_rate = 0.002
+momentum = 0.9
 batch_size = 32
 
 def main():
     # The input and the targets
     x_firstk = tensor.matrix('first_k')
+    n = x_firstk.shape[0]
+    x_firstk = (x_firstk.reshape((n, n_begin_end_pts, 2)) - data.porto_center[None, None, :]) / data.data_std[None, None, :]
+    x_firstk = x_firstk.reshape((n, 2 * n_begin_end_pts))
+
     x_lastk = tensor.matrix('last_k')
+    n = x_lastk.shape[0]
+    x_lastk = (x_lastk.reshape((n, n_begin_end_pts, 2)) - data.porto_center[None, None, :]) / data.data_std[None, None, :]
+    x_lastk = x_lastk.reshape((n, 2 * n_begin_end_pts))
+
     x_client = tensor.lvector('origin_call')
     x_stand = tensor.lvector('origin_stand')
     y = tensor.matrix('destination')
@@ -75,9 +84,10 @@ def main():
     # hidden = theano.printing.Print("hidden")(hidden)
     outputs = output_layer.apply(hidden)
 
+    # Normalize & Center
+    outputs = data.data_std * outputs + data.porto_center
+
     # Calculate the cost
-    # cost = (outputs - y).norm(2, axis=1).mean()
-    # outputs = numpy.array([[ -8.621953, 41.162142]], dtype='float32') + 0 * outputs
     cost = (outputs - y).norm(2, axis=1).mean()
     cost.name = 'cost'
     hcost = hdist.hdist(outputs, y).mean()
@@ -88,7 +98,7 @@ def main():
     stand_embed_table.weights_init = IsotropicGaussian(0.001)
     hidden_layer.weights_init = IsotropicGaussian(0.01)
     hidden_layer.biases_init = Constant(0.001)
-    output_layer.weights_init = IsotropicGaussian(0.001)
+    output_layer.weights_init = IsotropicGaussian(0.01)
     output_layer.biases_init = Constant(0.001)
 
     client_embed_table.initialize()
@@ -119,8 +129,8 @@ def main():
     params = VariableFilter(bricks=[Linear])(cg.parameters)
     algorithm = GradientDescent(
         cost=cost,
-        step_rule=AdaDelta(decay_rate=0.5),
-        # step_rule=Scale(learning_rate=learning_rate),
+        # step_rule=AdaDelta(decay_rate=0.5),
+        step_rule=Momentum(learning_rate=learning_rate, momentum=momentum),
         params=params)
 
     extensions=[DataStreamMonitoring([cost, hcost], valid_stream,

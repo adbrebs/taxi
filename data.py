@@ -1,6 +1,7 @@
 import ast, csv
 import socket
 import fuel
+import numpy
 from enum import Enum
 from fuel.datasets import Dataset
 from fuel.streams import DataStream
@@ -12,6 +13,9 @@ else:
     DATA_PATH="/data/lisatmp3/auvolat/taxikaggle"
 
 client_ids = {int(x): y+1 for y, x in enumerate(open(DATA_PATH+"/client_ids.txt"))}
+
+porto_center = numpy.array([[ -8.61612, 41.1573]], dtype='float32')
+data_std = numpy.sqrt(numpy.array([[ 0.00333233, 0.00549598]], dtype='float32'))
 
 class CallType(Enum):
     CENTRAL = 0
