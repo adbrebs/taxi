@@ -6,10 +6,10 @@ def hdist(a, b):
     rearth = numpy.float32(6371)
     deg2rad = numpy.float32(3.14159265358979 / 180)
 
-    lat1 = a[:, 0] * deg2rad
-    lon1 = a[:, 1] * deg2rad
-    lat2 = b[:, 0] * deg2rad
-    lon2 = b[:, 1] * deg2rad
+    lat1 = a[:, 1] * deg2rad
+    lon1 = a[:, 0] * deg2rad
+    lat2 = b[:, 1] * deg2rad
+    lon2 = b[:, 0] * deg2rad
 
     dlat = abs(lat1-lat2)
     dlon = abs(lon1-lon2)
