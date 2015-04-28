@@ -13,7 +13,6 @@ with open("valid-full.csv") as f:
 
 def make_valid_item(l):
     polyline = ast.literal_eval(l[-1])
-    print len(polyline)
     last = polyline[-1]
     cut_idx = random.randrange(len(polyline)-5)
     cut = polyline[:cut_idx+6]
@@ -30,3 +29,8 @@ with open("valid.csv", "w") as f:
     wr = csv.writer(f)
     for r in vlines:
         wr.writerow(r)
+
+with open("valid-solution.csv", "w") as f:
+    wr = csv.writer(f)
+    for r in vlines:
+        wr.writerow([r[0], r[-2], r[-3]])
