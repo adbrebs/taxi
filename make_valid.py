@@ -14,8 +14,8 @@ with open("valid-full.csv") as f:
 def make_valid_item(l):
     polyline = ast.literal_eval(l[-1])
     last = polyline[-1]
-    cut_idx = random.randrange(len(polyline)-5)
-    cut = polyline[:cut_idx+6]
+    cut_idx = random.randrange(len(polyline)+1)
+    cut = polyline[:cut_idx]
     return l[:-1] + [
                         cut.__str__(),
                         last[0],
@@ -23,7 +23,7 @@ def make_valid_item(l):
                         15 * (len(polyline)-1),
                     ]
 
-vlines = map(make_valid_item, filter(lambda l: (len(ast.literal_eval(l[-1])) > 5), vlines))
+vlines = map(make_valid_item, filter(lambda l: (len(ast.literal_eval(l[-1])) > 0), vlines))
 
 with open("valid.csv", "w") as f:
     wr = csv.writer(f)
@@ -32,5 +32,6 @@ with open("valid.csv", "w") as f:
 
 with open("valid-solution.csv", "w") as f:
     wr = csv.writer(f)
+    wr.writerow(["TRIP_ID", "LATITUDE", "LONGITUDE"])
     for r in vlines:
         wr.writerow([r[0], r[-2], r[-3]])

@@ -140,8 +140,8 @@ def main():
 
     extensions=[DataStreamMonitoring([cost, hcost], valid_stream,
                                      prefix='valid',
-                                     every_n_batches=1),
-                Printing(every_n_batches=1),
+                                     every_n_batches=1000),
+                Printing(every_n_batches=1000),
                 # Dump('taxi_model', every_n_batches=100),
                 # LoadFromDump('taxi_model'),
                 ]
@@ -163,6 +163,7 @@ def main():
 
     outfile = open("test-output.csv", "w")
     outcsv = csv.writer(outfile)
+    outcsv.writerow(["TRIP_ID", "LATITUDE", "LONGITUDE"])
     for out in apply_model.Apply(outputs=outputs, stream=test_stream, return_vars=['trip_id', 'outputs']):
         dest = out['outputs']
         for i, trip in enumerate(out['trip_id']):
