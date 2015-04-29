@@ -13,21 +13,34 @@ if socket.gethostname() == "adeb.laptop":
 else:
     DATA_PATH="/data/lisatmp3/auvolat/taxikaggle"
 
-client_ids = {int(x): y+1 for y, x in enumerate(open(DATA_PATH+"/client_ids.txt"))}
+H5DATA_PATH = '/data/lisatmp3/simonet/taxi/data.hdf5'
+
+porto_center = numpy.array([41.1573, -8.61612], dtype=theano.config.floatX)
+data_std = numpy.sqrt(numpy.array([0.00549598, 0.00333233], dtype=theano.config.floatX))
+
+n_clients = 57124
+n_train_clients = 57105
+n_stands = 63
+
+dataset_size = 1710670
+
+# ---- Read client IDs and create reverse dictionnary
+
+def make_client_ids():
+    f = h5py.File(H5DATA_PATH, "r")
+    l = f['uniq_origin_call']
+    r = {}
+    for i in range(l.shape[0]):
+        r[l[i]] = i
+    return r
+
+client_ids = make_client_ids()
 
 def get_client_id(n):
     if n in client_ids:
         return client_ids[n]
     else:
         return 0
-
-porto_center = numpy.array([41.1573, -8.61612], dtype=theano.config.floatX)
-data_std = numpy.sqrt(numpy.array([0.00549598, 0.00333233], dtype=theano.config.floatX))
-
-n_clients = 57124 #57105
-n_stands = 63
-
-dataset_size = 1710670
 
 class CallType(Enum):
     CENTRAL = 0
