@@ -26,41 +26,64 @@ class Select(Transformer):
             raise ValueError
         data=next(self.child_epoch_iterator)
         return [data[id] for id in self.ids]
+        
 
+class first_k(object):
+    def __init__(self, k, id_latitude, id_longitude):
+        self.k = k
+        self.id_latitude = id_latitude
+        self.id_longitude = id_longitude
+    def __call__(self, data): 
+        return (numpy.array(at_least_k(self.k, data[self.id_latitude], False, False)[:self.k],
+                            dtype=theano.config.floatX),
+                numpy.array(at_least_k(self.k, data[self.id_longitude], False, True)[:self.k],
+                            dtype=theano.config.floatX))
 def add_first_k(k, stream):
     id_latitude = stream.sources.index('latitude')
     id_longitude = stream.sources.index('longitude')
-    return Mapping(stream,
-        lambda data:
-            (numpy.array(at_least_k(k, data[id_latitude], False, False)[:k], dtype=theano.config.floatX),
-             numpy.array(at_least_k(k, data[id_longitude], False, True)[:k], dtype=theano.config.floatX)),
-        ('first_k_latitude', 'first_k_longitude'))
+    return Mapping(stream, first_k(k, id_latitude, id_longitude), ('first_k_latitude', 'first_k_longitude'))
 
+class random_k(object):
+    def __init__(self, k, id_latitude, id_longitude):
+        self.k = k
+        self.id_latitude = id_latitude
+        self.id_longitude = id_longitude
+    def __call__(self, x):
+        lat = at_least_k(self.k, x[self.id_latitude], True, False)
+        lon = at_least_k(self.k, x[self.id_longitude], True, True)
+        loc = random.randrange(len(lat)-self.k+1)
+        return (numpy.array(lat[loc:loc+self.k], dtype=theano.config.floatX),
+                numpy.array(lon[loc:loc+self.k], dtype=theano.config.floatX))
 def add_random_k(k, stream):
     id_latitude = stream.sources.index('latitude')
     id_longitude = stream.sources.index('longitude')
-    def random_k(x):
-        lat = at_least_k(k, x[id_latitude], True, False)
-        lon = at_least_k(k, x[id_longitude], True, True)
-        loc = random.randrange(len(lat)-k+1)
-        return (numpy.array(lat[loc:loc+k], dtype=theano.config.floatX),
-                numpy.array(lon[loc:loc+k], dtype=theano.config.floatX))
-    return Mapping(stream, random_k, ('last_k_latitude', 'last_k_longitude'))
+    return Mapping(stream, random_k(k, id_latitude, id_longitude), ('last_k_latitude', 'last_k_longitude'))
 
+class last_k(object):
+    def __init__(self, k, id_latitude, id_longitude):
+        self.k = k
+        self.id_latitude = id_latitude
+        self.id_longitude = id_longitude
+    def __call__(self, data):
+        return (numpy.array(at_least_k(self.k, data[self.id_latitude], True, False)[-self.k:],
+                            dtype=theano.config.floatX),
+                numpy.array(at_least_k(self.k, data[self.id_longitude], True, True)[-self.k:],
+                            dtype=theano.config.floatX))
 def add_last_k(k, stream):
     id_latitude = stream.sources.index('latitude')
     id_longitude = stream.sources.index('longitude')
-    return Mapping(stream,
-        lambda data:
-            (numpy.array(at_least_k(k, data[id_latitude], True, False)[-k:], dtype=theano.config.floatX),
-             numpy.array(at_least_k(k, data[id_longitude], True, True)[-k:], dtype=theano.config.floatX)),
-        ('last_k_latitude', 'last_k_longitude'))
+    return Mapping(stream, last_k(k, id_latitude, id_longitude), ('last_k_latitude', 'last_k_longitude'))
 
+class destination(object):
+    def __init__(self, id_latitude, id_longitude):
+        self.id_latitude = id_latitude
+        self.id_longitude = id_longitude
+    def __call__(self, data):
+        return (numpy.array(at_least_k(1, data[self.id_latitude], True, False)[-1],
+                            dtype=theano.config.floatX),
+                numpy.array(at_least_k(1, data[self.id_longitude], True, True)[-1],
+                            dtype=theano.config.floatX))
 def add_destination(stream):
     id_latitude = stream.sources.index('latitude')
     id_longitude = stream.sources.index('longitude')
-    return Mapping(stream,
-        lambda data:
-            (numpy.array(at_least_k(1, data[id_latitude], True, False)[-1], dtype=theano.config.floatX),
-             numpy.array(at_least_k(1, data[id_longitude], True, True)[-1], dtype=theano.config.floatX)),
-        ('destination_latitude', 'destination_longitude'))
+    return Mapping(stream, destination(id_latitude, id_longitude), ('destination_latitude', 'destination_longitude'))

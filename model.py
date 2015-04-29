@@ -30,7 +30,7 @@ from blocks.algorithms import GradientDescent, Scale, AdaDelta, Momentum
 from blocks.graph import ComputationGraph
 from blocks.main_loop import MainLoop
 from blocks.extensions import Printing
-from blocks.extensions.saveload import Dump, LoadFromDump
+from blocks.extensions.saveload import Dump, LoadFromDump, Checkpoint
 from blocks.extensions.monitoring import DataStreamMonitoring
 
 import data
@@ -149,8 +149,9 @@ def main():
                                      prefix='valid',
                                      every_n_batches=1000),
                 Printing(every_n_batches=1000),
-                # Dump('taxi_model', every_n_batches=100),
-                # LoadFromDump('taxi_model'),
+                # Checkpoint('model.pkl', every_n_batches=100),
+                Dump('taxi_model', every_n_batches=100),
+                LoadFromDump('taxi_model'),
                 ]
 
     main_loop = MainLoop(
