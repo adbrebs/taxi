@@ -46,20 +46,30 @@ if __name__ == "__main__":
 
 def setup_stream():
     # Load the training and test data
-    train = H5PYDataset('/data/lisatmp3/simonet/taxi/data.hdf5', which_set='train', subset=slice(0, config.train_size - config.n_valid), load_in_memory=True)
+    train = H5PYDataset('/data/lisatmp3/simonet/taxi/data.hdf5',
+                        which_set='train',
+                        subset=slice(0, config.train_size - config.n_valid),
+                        load_in_memory=True)
     train = DataStream(train, iteration_scheme=SequentialExampleScheme(config.train_size - config.n_valid))
     train = transformers.add_first_k(config.n_begin_end_pts, train)
     train = transformers.add_random_k(config.n_begin_end_pts, train)
     train = transformers.add_destination(train)
-    train = transformers.Select(train, ('origin_stand', 'origin_call', 'first_k_latitude', 'last_k_latitude', 'first_k_longitude', 'last_k_longitude', 'destination_latitude', 'destination_longitude'))
+    train = transformers.Select(train, ('origin_stand', 'origin_call', 'first_k_latitude',
+                                        'last_k_latitude', 'first_k_longitude', 'last_k_longitude',
+                                        'destination_latitude', 'destination_longitude'))
     train_stream = Batch(train, iteration_scheme=ConstantScheme(config.batch_size))
 
-    valid = H5PYDataset('/data/lisatmp3/simonet/taxi/data.hdf5', which_set='train', subset=slice(config.train_size - config.n_valid, config.train_size), load_in_memory=True)
+    valid = H5PYDataset('/data/lisatmp3/simonet/taxi/data.hdf5',
+                        which_set='train',
+                        subset=slice(config.train_size - config.n_valid, config.train_size),
+                        load_in_memory=True)
     valid = DataStream(valid, iteration_scheme=SequentialExampleScheme(config.n_valid))
     valid = transformers.add_first_k(config.n_begin_end_pts, valid)
     valid = transformers.add_last_k(config.n_begin_end_pts, valid)
     valid = transformers.add_destination(valid)
-    valid = transformers.Select(valid, ('origin_stand', 'origin_call', 'first_k_latitude', 'last_k_latitude', 'first_k_longitude', 'last_k_longitude', 'destination_latitude', 'destination_longitude'))
+    valid = transformers.Select(valid, ('origin_stand', 'origin_call', 'first_k_latitude',
+                                        'last_k_latitude', 'first_k_longitude', 'last_k_longitude',
+                                        'destination_latitude', 'destination_longitude'))
     valid_stream = Batch(valid, iteration_scheme=ConstantScheme(1000))
     
     return (train_stream, valid_stream)
@@ -68,15 +78,15 @@ def main():
     # The input and the targets
     x_firstk_latitude = (tensor.matrix('first_k_latitude') - data.porto_center[0]) / data.data_std[0]
     x_firstk_longitude = (tensor.matrix('first_k_longitude') - data.porto_center[1]) / data.data_std[1]
-    x_firstk = tensor.concatenate((x_firstk_latitude, x_firstk_longitude), axis=1)
 
     x_lastk_latitude = (tensor.matrix('last_k_latitude') - data.porto_center[0]) / data.data_std[0]
     x_lastk_longitude = (tensor.matrix('last_k_longitude') - data.porto_center[1]) / data.data_std[1]
-    x_lastk = tensor.concatenate((x_lastk_latitude, x_lastk_longitude), axis=1)
 
     x_client = tensor.lvector('origin_call')
     x_stand = tensor.lvector('origin_stand')
-    y = tensor.concatenate((tensor.vector('destination_latitude')[:, None], tensor.vector('destination_longitude')[:, None]), axis=1)
+
+    y = tensor.concatenate((tensor.vector('destination_latitude')[:, None],
+                            tensor.vector('destination_longitude')[:, None]), axis=1)
 
     # Define the model
     client_embed_table = LookupTable(length=config.n_clients+1, dim=config.dim_embed, name='client_lookup')
@@ -87,7 +97,8 @@ def main():
     # Create the Theano variables
     client_embed = client_embed_table.apply(x_client).flatten(ndim=2)
     stand_embed = stand_embed_table.apply(x_stand).flatten(ndim=2)
-    inputs = tensor.concatenate([x_firstk, x_lastk, client_embed, stand_embed],
+    inputs = tensor.concatenate([x_firstk_latitude, x_firstk_longitude,
+                                 x_lastk_latitude, x_lastk_longitude, client_embed, stand_embed],
                                 axis=1)
     # inputs = theano.printing.Print("inputs")(inputs)
     outputs = mlp.apply(inputs)

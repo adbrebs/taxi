@@ -12,10 +12,10 @@ def hdist(a, b):
     rearth = const(6371)
     deg2rad = const(3.141592653589793 / 180)
 
-    lat1 = a[:, 1] * deg2rad
-    lon1 = a[:, 0] * deg2rad
-    lat2 = b[:, 1] * deg2rad
-    lon2 = b[:, 0] * deg2rad
+    lat1 = a[:, 0] * deg2rad
+    lon1 = a[:, 1] * deg2rad
+    lat2 = b[:, 0] * deg2rad
+    lon2 = b[:, 1] * deg2rad
 
     dlat = abs(lat1-lat2)
     dlon = abs(lon1-lon2)

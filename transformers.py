@@ -43,7 +43,7 @@ def add_random_k(k, stream):
         lon = at_least_k(k, x[id_latitude], True, True)
         loc = random.randrange(len(lat)-k+1)
         return (numpy.array(lat[loc:loc+k], dtype=theano.config.floatX),
-                numpy.array(lon[loc:loc+k], dtype=theano.config.floatX)),
+                numpy.array(lon[loc:loc+k], dtype=theano.config.floatX))
     return Mapping(stream, random_k, ('last_k_latitude', 'last_k_longitude'))
 
 def add_last_k(k, stream):
