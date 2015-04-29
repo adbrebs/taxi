@@ -150,7 +150,7 @@ def main():
                                      every_n_batches=1000),
                 Printing(every_n_batches=1000),
                 # Checkpoint('model.pkl', every_n_batches=100),
-                Dump('taxi_model', every_n_batches=100),
+                Dump('taxi_model', every_n_batches=1000),
                 LoadFromDump('taxi_model'),
                 ]
 
@@ -160,6 +160,7 @@ def main():
         algorithm=algorithm,
         extensions=extensions)
     main_loop.run()
+    main_loop.profile.report()
 
     # Produce an output on the test data
     '''
