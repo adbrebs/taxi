@@ -60,3 +60,6 @@ target/
 
 # Vim tmpfiles
 *.swp
+
+# Random datafiles
+*.csv
