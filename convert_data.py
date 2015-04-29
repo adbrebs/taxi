@@ -74,9 +74,9 @@ def read_taxis(input_directory, h5file, dataset, prefix):
             timestamp[id] = int(line[5])
             day_type[id] = ord(line[6][0]) - ord('A')
             missing_data[id] = line[7][0] == 'T'
-            polyline = numpy.array(ast.literal_eval(line[8]), dtype=theano.config.floatX)
-            latitude[id] = polyline[:, 1] if polyline.ndim==2 else polyline
-            longitude[id] = polyline[:, 0] if polyline.ndim==2 else polyline
+            polyline = ast.literal_eval(line[8])
+            latitude[id] = numpy.array([point[1] for point in polyline], dtype=theano.config.floatX)
+            longitude[id] = numpy.array([point[0] for point in polyline], dtype=theano.config.floatX)
             id+=1
     splits = {}
     print >> sys.stderr, 'read %s: writing' % dataset
