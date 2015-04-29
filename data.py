@@ -21,8 +21,8 @@ def get_client_id(n):
     else:
         return 0
 
-porto_center = numpy.array([[ -8.61612, 41.1573]], dtype=theano.config.floatX)
-data_std = numpy.sqrt(numpy.array([[ 0.00333233, 0.00549598]], dtype=theano.config.floatX))
+porto_center = numpy.array([41.1573, -8.61612], dtype=theano.config.floatX)
+data_std = numpy.sqrt(numpy.array([0.00549598, 0.00333233], dtype=theano.config.floatX))
 
 class CallType(Enum):
     CENTRAL = 0

@@ -1,5 +1,7 @@
 import logging
 import os
+import sys
+import importlib
 from argparse import ArgumentParser
 
 import csv
@@ -19,9 +21,10 @@ from blocks.bricks.lookup import LookupTable
 from blocks.initialization import IsotropicGaussian, Constant
 from blocks.model import Model
 
+from fuel.datasets.hdf5 import H5PYDataset
 from fuel.transformers import Batch
 from fuel.streams import DataStream
-from fuel.schemes import ConstantScheme
+from fuel.schemes import ConstantScheme, SequentialExampleScheme
 
 from blocks.algorithms import GradientDescent, Scale, AdaDelta, Momentum
 from blocks.graph import ComputationGraph
@@ -35,58 +38,59 @@ import transformers
 import hdist
 import apply_model
 
-n_dow = 7       # number of division for dayofweek/dayofmonth/hourofday
-n_dom = 31
-n_hour = 24
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print >> sys.stderr, 'Usage: %s config' % sys.argv[0]
+        sys.exit(1)
+    config = importlib.import_module(sys.argv[1])
 
-n_clients = 57105
-n_stands = 63
+def setup_stream():
+    # Load the training and test data
+    train = H5PYDataset('/data/lisatmp3/simonet/taxi/data.hdf5', which_set='train', subset=slice(0, config.train_size - config.n_valid), load_in_memory=True)
+    train = DataStream(train, iteration_scheme=SequentialExampleScheme(config.train_size - config.n_valid))
+    train = transformers.add_first_k(config.n_begin_end_pts, train)
+    train = transformers.add_random_k(config.n_begin_end_pts, train)
+    train = transformers.add_destination(train)
+    train = transformers.Select(train, ('origin_stand', 'origin_call', 'first_k_latitude', 'last_k_latitude', 'first_k_longitude', 'last_k_longitude', 'destination_latitude', 'destination_longitude'))
+    train_stream = Batch(train, iteration_scheme=ConstantScheme(config.batch_size))
 
-n_begin_end_pts = 5     # how many points we consider at the beginning and end of the known trajectory
-n_end_pts = 5
-
-dim_embed = 50
-dim_input = n_begin_end_pts * 2 * 2 + dim_embed + dim_embed
-dim_hidden = [200]
-dim_output = 2
-
-learning_rate = 0.002
-momentum = 0.9
-batch_size = 32
+    valid = H5PYDataset('/data/lisatmp3/simonet/taxi/data.hdf5', which_set='train', subset=slice(config.train_size - config.n_valid, config.train_size), load_in_memory=True)
+    valid = DataStream(valid, iteration_scheme=SequentialExampleScheme(config.n_valid))
+    valid = transformers.add_first_k(config.n_begin_end_pts, valid)
+    valid = transformers.add_last_k(config.n_begin_end_pts, valid)
+    valid = transformers.add_destination(valid)
+    valid = transformers.Select(valid, ('origin_stand', 'origin_call', 'first_k_latitude', 'last_k_latitude', 'first_k_longitude', 'last_k_longitude', 'destination_latitude', 'destination_longitude'))
+    valid_stream = Batch(valid, iteration_scheme=ConstantScheme(1000))
+    
+    return (train_stream, valid_stream)
 
 def main():
     # The input and the targets
-    x_firstk = tensor.matrix('first_k')
-    n = x_firstk.shape[0]
-    x_firstk = (x_firstk.reshape((n, n_begin_end_pts, 2)) - data.porto_center[None, None, :]) / data.data_std[None, None, :]
-    x_firstk = x_firstk.reshape((n, 2 * n_begin_end_pts))
+    x_firstk_latitude = (tensor.matrix('first_k_latitude') - data.porto_center[0]) / data.data_std[0]
+    x_firstk_longitude = (tensor.matrix('first_k_longitude') - data.porto_center[1]) / data.data_std[1]
+    x_firstk = tensor.concatenate((x_firstk_latitude, x_firstk_longitude), axis=1)
 
-    x_lastk = tensor.matrix('last_k')
-    n = x_lastk.shape[0]
-    x_lastk = (x_lastk.reshape((n, n_begin_end_pts, 2)) - data.porto_center[None, None, :]) / data.data_std[None, None, :]
-    x_lastk = x_lastk.reshape((n, 2 * n_begin_end_pts))
+    x_lastk_latitude = (tensor.matrix('last_k_latitude') - data.porto_center[0]) / data.data_std[0]
+    x_lastk_longitude = (tensor.matrix('last_k_longitude') - data.porto_center[1]) / data.data_std[1]
+    x_lastk = tensor.concatenate((x_lastk_latitude, x_lastk_longitude), axis=1)
 
     x_client = tensor.lvector('origin_call')
     x_stand = tensor.lvector('origin_stand')
-    y = tensor.matrix('destination')
+    y = tensor.concatenate((tensor.vector('destination_latitude')[:, None], tensor.vector('destination_longitude')[:, None]), axis=1)
 
     # Define the model
-    client_embed_table = LookupTable(length=n_clients+1, dim=dim_embed, name='client_lookup')
-    stand_embed_table = LookupTable(length=n_stands+1, dim=dim_embed, name='stand_lookup')
-    hidden_layer = MLP(activations=[Rectifier() for _ in dim_hidden],
-                       dims=[dim_input] + dim_hidden)
-    output_layer = Linear(input_dim=dim_hidden[-1], output_dim=dim_output)
+    client_embed_table = LookupTable(length=config.n_clients+1, dim=config.dim_embed, name='client_lookup')
+    stand_embed_table = LookupTable(length=config.n_stands+1, dim=config.dim_embed, name='stand_lookup')
+    mlp = MLP(activations=[Rectifier() for _ in config.dim_hidden] + [None],
+                       dims=[config.dim_input] + config.dim_hidden + [config.dim_output])
 
     # Create the Theano variables
-
     client_embed = client_embed_table.apply(x_client).flatten(ndim=2)
     stand_embed = stand_embed_table.apply(x_stand).flatten(ndim=2)
     inputs = tensor.concatenate([x_firstk, x_lastk, client_embed, stand_embed],
                                 axis=1)
     # inputs = theano.printing.Print("inputs")(inputs)
-    hidden = hidden_layer.apply(inputs)
-    # hidden = theano.printing.Print("hidden")(hidden)
-    outputs = output_layer.apply(hidden)
+    outputs = mlp.apply(inputs)
 
     # Normalize & Center
     outputs = data.data_std * outputs + data.porto_center
@@ -101,42 +105,22 @@ def main():
     # Initialization
     client_embed_table.weights_init = IsotropicGaussian(0.001)
     stand_embed_table.weights_init = IsotropicGaussian(0.001)
-    hidden_layer.weights_init = IsotropicGaussian(0.01)
-    hidden_layer.biases_init = Constant(0.001)
-    output_layer.weights_init = IsotropicGaussian(0.01)
-    output_layer.biases_init = Constant(0.001)
+    mlp.weights_init = IsotropicGaussian(0.01)
+    mlp.biases_init = Constant(0.001)
 
     client_embed_table.initialize()
     stand_embed_table.initialize()
-    hidden_layer.initialize()
-    output_layer.initialize()
+    mlp.initialize()
 
-    # Load the training and test data
-    train = data.train_data
-    train = DataStream(train)
-    train = transformers.add_first_k(n_begin_end_pts, train)
-    train = transformers.add_random_k(n_begin_end_pts, train)
-    train = transformers.add_destination(train)
-    train = transformers.Select(train, ('origin_stand', 'origin_call', 'first_k', 'last_k', 'destination'))
-    train_stream = Batch(train, iteration_scheme=ConstantScheme(batch_size))
-
-    valid = data.valid_data
-    valid = DataStream(valid)
-    valid = transformers.add_first_k(n_begin_end_pts, valid)
-    valid = transformers.add_last_k(n_begin_end_pts, valid)
-    valid = transformers.concat_destination_xy(valid)
-    valid = transformers.Select(valid, ('origin_stand', 'origin_call', 'first_k', 'last_k', 'destination'))
-    valid_stream = Batch(valid, iteration_scheme=ConstantScheme(1000))
-
+    (train_stream, valid_stream) = setup_stream()
 
     # Training
     cg = ComputationGraph(cost)
-    params = VariableFilter(bricks=[Linear])(cg.parameters)
     algorithm = GradientDescent(
         cost=cost,
         # step_rule=AdaDelta(decay_rate=0.5),
-        step_rule=Momentum(learning_rate=learning_rate, momentum=momentum),
-        params=params)
+        step_rule=Momentum(learning_rate=config.learning_rate, momentum=config.momentum),
+        params=cg.parameters)
 
     extensions=[DataStreamMonitoring([cost, hcost], valid_stream,
                                      prefix='valid',
@@ -154,10 +138,11 @@ def main():
     main_loop.run()
 
     # Produce an output on the test data
+    '''
     test = data.test_data
     test = DataStream(test)
-    test = transformers.add_first_k(n_begin_end_pts, test)
-    test = transformers.add_last_k(n_begin_end_pts, test)
+    test = transformers.add_first_k(conifg.n_begin_end_pts, test)
+    test = transformers.add_last_k(config.n_begin_end_pts, test)
     test = transformers.Select(test, ('trip_id', 'origin_stand', 'origin_call', 'first_k', 'last_k'))
     test_stream = Batch(test, iteration_scheme=ConstantScheme(1000))
 
@@ -169,6 +154,7 @@ def main():
         for i, trip in enumerate(out['trip_id']):
             outcsv.writerow([trip, repr(dest[i, 1]), repr(dest[i, 0])])
     outfile.close()
+    '''
 
 
 if __name__ == "__main__":

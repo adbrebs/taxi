@@ -1,0 +1,21 @@
+n_dow = 7       # number of division for dayofweek/dayofmonth/hourofday
+n_dom = 31
+n_hour = 24
+
+n_clients = 57124 #57105
+n_stands = 63
+
+n_begin_end_pts = 5     # how many points we consider at the beginning and end of the known trajectory
+n_end_pts = 5
+
+train_size = 1710670
+n_valid = 1000
+
+dim_embed = 50
+dim_input = n_begin_end_pts * 2 * 2 + dim_embed + dim_embed
+dim_hidden = [200]
+dim_output = 2
+
+learning_rate = 0.002
+momentum = 0.9
+batch_size = 32
