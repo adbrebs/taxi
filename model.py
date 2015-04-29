@@ -65,7 +65,7 @@ def setup_stream():
                         load_in_memory=True)
     valid = DataStream(valid, iteration_scheme=SequentialExampleScheme(config.n_valid))
     valid = transformers.add_first_k(config.n_begin_end_pts, valid)
-    valid = transformers.add_last_k(config.n_begin_end_pts, valid)
+    valid = transformers.add_random_k(config.n_begin_end_pts, valid)
     valid = transformers.add_destination(valid)
     valid = transformers.Select(valid, ('origin_stand', 'origin_call', 'first_k_latitude',
                                         'last_k_latitude', 'first_k_longitude', 'last_k_longitude',
@@ -88,23 +88,34 @@ def main():
     y = tensor.concatenate((tensor.vector('destination_latitude')[:, None],
                             tensor.vector('destination_longitude')[:, None]), axis=1)
 
+    # x_firstk_latitude = theano.printing.Print("x_firstk_latitude")(x_firstk_latitude)
+    # x_firstk_longitude = theano.printing.Print("x_firstk_longitude")(x_firstk_longitude)
+    # x_lastk_latitude = theano.printing.Print("x_lastk_latitude")(x_lastk_latitude)
+    # x_lastk_longitude = theano.printing.Print("x_lastk_longitude")(x_lastk_longitude)
+
     # Define the model
     client_embed_table = LookupTable(length=config.n_clients+1, dim=config.dim_embed, name='client_lookup')
     stand_embed_table = LookupTable(length=config.n_stands+1, dim=config.dim_embed, name='stand_lookup')
-    mlp = MLP(activations=[Rectifier() for _ in config.dim_hidden] + [None],
+    mlp = MLP(activations=[Rectifier() for _ in config.dim_hidden] + [Identity()],
                        dims=[config.dim_input] + config.dim_hidden + [config.dim_output])
 
     # Create the Theano variables
-    client_embed = client_embed_table.apply(x_client).flatten(ndim=2)
-    stand_embed = stand_embed_table.apply(x_stand).flatten(ndim=2)
+    client_embed = client_embed_table.apply(x_client)
+    stand_embed = stand_embed_table.apply(x_stand)
     inputs = tensor.concatenate([x_firstk_latitude, x_firstk_longitude,
-                                 x_lastk_latitude, x_lastk_longitude, client_embed, stand_embed],
+                                 x_lastk_latitude, x_lastk_longitude,
+                                 client_embed, stand_embed],
                                 axis=1)
     # inputs = theano.printing.Print("inputs")(inputs)
     outputs = mlp.apply(inputs)
 
     # Normalize & Center
+    # outputs = theano.printing.Print("normal_outputs")(outputs)
     outputs = data.data_std * outputs + data.porto_center
+
+    # outputs = theano.printing.Print("outputs")(outputs)
+    # y = theano.printing.Print("y")(y)
+
     outputs.name = 'outputs'
 
     # Calculate the cost
@@ -127,11 +138,12 @@ def main():
 
     # Training
     cg = ComputationGraph(cost)
+    params = cg.parameters # VariableFilter(bricks=[Linear])(cg.parameters) 
     algorithm = GradientDescent(
         cost=cost,
         # step_rule=AdaDelta(decay_rate=0.5),
         step_rule=Momentum(learning_rate=config.learning_rate, momentum=config.momentum),
-        params=cg.parameters)
+        params=params)
 
     extensions=[DataStreamMonitoring([cost, hcost], valid_stream,
                                      prefix='valid',
