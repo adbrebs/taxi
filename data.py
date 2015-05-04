@@ -164,21 +164,25 @@ taxi_columns = [
 ]
 
 taxi_columns_valid = taxi_columns + [
-    ("destination_longitude", lambda l: float(l[9])),
-    ("destination_latitude", lambda l: float(l[10])),
+    ("destination_longitude", lambda l: numpy.float32(float(l[9]))),
+    ("destination_latitude", lambda l: numpy.float32(float(l[10]))),
     ("time", lambda l: int(l[11])),
 ]
 
 train_files=["%s/split/train-%02d.csv" % (DATA_PATH, i) for i in range(100)]
-valid_files=["%s/split/valid.csv" % (DATA_PATH,)]
+valid_files=["%s/split/valid2-cut.csv" % (DATA_PATH,)]
 test_file="%s/test.csv" % (DATA_PATH,)
 
 train_data=TaxiData(train_files, taxi_columns)
 valid_data = TaxiData(valid_files, taxi_columns_valid)
 test_data = TaxiData(test_file, taxi_columns, has_header=True)
 
+valid_trips = [l for l in open(DATA_PATH + "/split/valid2-cut-ids.txt")]
+
 def train_it():
     return DataIterator(DataStream(train_data))
 
 def test_it():
     return DataIterator(DataStream(valid_data))
+
+

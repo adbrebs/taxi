@@ -44,35 +44,35 @@ if __name__ == "__main__":
         sys.exit(1)
     config = importlib.import_module(sys.argv[1])
 
-def setup_stream():
+
+def setup_train_stream():
     # Load the training and test data
     train = H5PYDataset(data.H5DATA_PATH,
                         which_set='train',
-                        subset=slice(0, data.dataset_size - config.n_valid),
+                        subset=slice(0, data.dataset_size),
                         load_in_memory=True)
     train = DataStream(train, iteration_scheme=SequentialExampleScheme(data.dataset_size - config.n_valid))
+    train = transformers.filter_out_trips(data.valid_trips, train)
+    train = transformers.TaxiGenerateSplits(train)
     train = transformers.add_first_k(config.n_begin_end_pts, train)
-    train = transformers.add_random_k(config.n_begin_end_pts, train)
-    train = transformers.add_destination(train)
+    train = transformers.add_last_k(config.n_begin_end_pts, train)
     train = transformers.Select(train, ('origin_stand', 'origin_call', 'first_k_latitude',
                                         'last_k_latitude', 'first_k_longitude', 'last_k_longitude',
                                         'destination_latitude', 'destination_longitude'))
     train_stream = Batch(train, iteration_scheme=ConstantScheme(config.batch_size))
 
-    valid = H5PYDataset(data.H5DATA_PATH,
-                        which_set='train',
-                        subset=slice(data.dataset_size - config.n_valid, data.dataset_size),
-                        load_in_memory=True)
-    valid = DataStream(valid, iteration_scheme=SequentialExampleScheme(config.n_valid))
+    return train_stream
+
+def setup_valid_stream():
+    valid = DataStream(data.valid_data)
     valid = transformers.add_first_k(config.n_begin_end_pts, valid)
-    valid = transformers.add_random_k(config.n_begin_end_pts, valid)
-    valid = transformers.add_destination(valid)
+    valid = transformers.add_last_k(config.n_begin_end_pts, valid)
     valid = transformers.Select(valid, ('origin_stand', 'origin_call', 'first_k_latitude',
                                         'last_k_latitude', 'first_k_longitude', 'last_k_longitude',
                                         'destination_latitude', 'destination_longitude'))
     valid_stream = Batch(valid, iteration_scheme=ConstantScheme(1000))
     
-    return (train_stream, valid_stream)
+    return valid_stream
 
 def setup_test_stream():
     test = data.test_data
@@ -85,6 +85,7 @@ def setup_test_stream():
     test_stream = Batch(test, iteration_scheme=ConstantScheme(1000))
 
     return test_stream
+
 
 def main():
     # The input and the targets
@@ -146,7 +147,8 @@ def main():
     stand_embed_table.initialize()
     mlp.initialize()
 
-    (train_stream, valid_stream) = setup_stream()
+    train_stream = setup_train_stream()
+    valid_stream = setup_valid_stream()
 
     # Training
     cg = ComputationGraph(cost)
