@@ -2,14 +2,14 @@ from theano import tensor
 import theano
 import numpy
 
-rearth = const(6371)
-deg2rad = const(3.141592653589793 / 180)
-
 def const(v):
     if theano.config.floatX == 'float32':
         return numpy.float32(v)
     else:
         return numpy.float64(v)
+
+rearth = const(6371)
+deg2rad = const(3.141592653589793 / 180)
 
 def hdist(a, b):
     lat1 = a[:, 0] * deg2rad
