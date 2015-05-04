@@ -17,7 +17,7 @@ with open(data.DATA_PATH + "/arrival-clusters.pkl") as f: tgtcls = cPickle.load(
 
 dim_embed = 10
 dim_input = n_begin_end_pts * 2 * 2 + dim_embed + dim_embed
-dim_hidden = [200]
+dim_hidden = []
 dim_output = tgtcls.shape[0]
 
 learning_rate = 0.0001

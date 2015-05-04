@@ -44,10 +44,6 @@ class Model(object):
         cls_probas = mlp.apply(inputs)
         outputs = tensor.dot(cls_probas, classes)
 
-        # Normalize & Center
-        # outputs = theano.printing.Print("normal_outputs")(outputs)
-        outputs = data.data_std * outputs + data.porto_center
-
         # outputs = theano.printing.Print("outputs")(outputs)
         # y = theano.printing.Print("y")(y)
 
