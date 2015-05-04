@@ -104,8 +104,9 @@ def convert(input_directory, save_path):
     h5file = h5py.File(save_path, 'w')
     split = {}
     split.update(read_stands(input_directory, h5file))
-    split.update(read_taxis(input_directory, h5file, 'test', 'test_'))
     split.update(read_taxis(input_directory, h5file, 'train', ''))
+    print 'First origin_call not present in training set: ', len(origin_call_dict)
+    split.update(read_taxis(input_directory, h5file, 'test', 'test_'))
     split.update(unique(h5file))
     h5file.attrs['split'] = H5PYDataset.create_split_array(split)
     h5file.flush()
