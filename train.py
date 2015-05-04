@@ -15,10 +15,6 @@ from theano.ifelse import ifelse
 
 from blocks.filter import VariableFilter
 
-from blocks.bricks import MLP, Rectifier, Linear, Sigmoid, Identity
-from blocks.bricks.lookup import LookupTable
-
-from blocks.initialization import IsotropicGaussian, Constant
 from blocks.model import Model
 
 from fuel.datasets.hdf5 import H5PYDataset
@@ -88,64 +84,11 @@ def setup_test_stream():
 
 
 def main():
-    # The input and the targets
-    x_firstk_latitude = (tensor.matrix('first_k_latitude') - data.porto_center[0]) / data.data_std[0]
-    x_firstk_longitude = (tensor.matrix('first_k_longitude') - data.porto_center[1]) / data.data_std[1]
+    model = config.model.Model(config)
 
-    x_lastk_latitude = (tensor.matrix('last_k_latitude') - data.porto_center[0]) / data.data_std[0]
-    x_lastk_longitude = (tensor.matrix('last_k_longitude') - data.porto_center[1]) / data.data_std[1]
-
-    x_client = tensor.lvector('origin_call')
-    x_stand = tensor.lvector('origin_stand')
-
-    y = tensor.concatenate((tensor.vector('destination_latitude')[:, None],
-                            tensor.vector('destination_longitude')[:, None]), axis=1)
-
-    # x_firstk_latitude = theano.printing.Print("x_firstk_latitude")(x_firstk_latitude)
-    # x_firstk_longitude = theano.printing.Print("x_firstk_longitude")(x_firstk_longitude)
-    # x_lastk_latitude = theano.printing.Print("x_lastk_latitude")(x_lastk_latitude)
-    # x_lastk_longitude = theano.printing.Print("x_lastk_longitude")(x_lastk_longitude)
-
-    # Define the model
-    client_embed_table = LookupTable(length=data.n_train_clients+1, dim=config.dim_embed, name='client_lookup')
-    stand_embed_table = LookupTable(length=data.n_stands+1, dim=config.dim_embed, name='stand_lookup')
-    mlp = MLP(activations=[Rectifier() for _ in config.dim_hidden] + [Identity()],
-                       dims=[config.dim_input] + config.dim_hidden + [config.dim_output])
-
-    # Create the Theano variables
-    client_embed = client_embed_table.apply(x_client)
-    stand_embed = stand_embed_table.apply(x_stand)
-    inputs = tensor.concatenate([x_firstk_latitude, x_firstk_longitude,
-                                 x_lastk_latitude, x_lastk_longitude,
-                                 client_embed, stand_embed],
-                                axis=1)
-    # inputs = theano.printing.Print("inputs")(inputs)
-    outputs = mlp.apply(inputs)
-
-    # Normalize & Center
-    # outputs = theano.printing.Print("normal_outputs")(outputs)
-    outputs = data.data_std * outputs + data.porto_center
-
-    # outputs = theano.printing.Print("outputs")(outputs)
-    # y = theano.printing.Print("y")(y)
-
-    outputs.name = 'outputs'
-
-    # Calculate the cost
-    cost = (outputs - y).norm(2, axis=1).mean()
-    cost.name = 'cost'
-    hcost = hdist.hdist(outputs, y).mean()
-    hcost.name = 'hcost'
-
-    # Initialization
-    client_embed_table.weights_init = IsotropicGaussian(0.001)
-    stand_embed_table.weights_init = IsotropicGaussian(0.001)
-    mlp.weights_init = IsotropicGaussian(0.01)
-    mlp.biases_init = Constant(0.001)
-
-    client_embed_table.initialize()
-    stand_embed_table.initialize()
-    mlp.initialize()
+    cost = model.cost
+    hcost = model.hcost
+    outputs = model.outputs
 
     train_stream = setup_train_stream()
     valid_stream = setup_valid_stream()

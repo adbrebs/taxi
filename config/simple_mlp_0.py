@@ -1,3 +1,5 @@
+import model.simple_mlp as model
+
 n_dow = 7       # number of division for dayofweek/dayofmonth/hourofday
 n_dom = 31
 n_hour = 24
