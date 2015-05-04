@@ -53,7 +53,7 @@ def setup_train_stream():
                         load_in_memory=True)
     train = DataStream(train, iteration_scheme=SequentialExampleScheme(data.dataset_size - config.n_valid))
     train = transformers.filter_out_trips(data.valid_trips, train)
-    train = transformers.TaxiGenerateSplits(train)
+    train = transformers.TaxiGenerateSplits(train, max_splits=100)
     train = transformers.add_first_k(config.n_begin_end_pts, train)
     train = transformers.add_last_k(config.n_begin_end_pts, train)
     train = transformers.Select(train, ('origin_stand', 'origin_call', 'first_k_latitude',

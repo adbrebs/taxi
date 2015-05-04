@@ -12,6 +12,6 @@ dim_input = n_begin_end_pts * 2 * 2 + dim_embed + dim_embed
 dim_hidden = [200, 100]
 dim_output = 2
 
-learning_rate = 0.002
-momentum = 0.9
+learning_rate = 0.0001
+momentum = 0.99
 batch_size = 32
