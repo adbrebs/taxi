@@ -6,7 +6,7 @@ from blocks.initialization import IsotropicGaussian, Constant
 from theano import tensor
 
 import data
-import hdist
+import error
 
 class Model(object):
     def __init__(self, config):
@@ -51,9 +51,9 @@ class Model(object):
         outputs.name = 'outputs'
 
         # Calculate the cost
-        cost = hdist.erdist(outputs, y).mean()
+        cost = error.erdist(outputs, y).mean()
         cost.name = 'cost'
-        hcost = hdist.hdist(outputs, y).mean()
+        hcost = error.hdist(outputs, y).mean()
         hcost.name = 'hcost'
 
         # Initialization
@@ -67,5 +67,7 @@ class Model(object):
         mlp.initialize()
 
         self.cost = cost
-        self.hcost = hcost
+        self.monitor = [cost, hcost]
         self.outputs = outputs
+        self.pred_vars = ['destination_latitude', 'destination_longitude']
+

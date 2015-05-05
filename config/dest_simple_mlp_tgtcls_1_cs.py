@@ -2,7 +2,7 @@ import cPickle
 
 import data
 
-import model.simple_mlp_tgtcls as model
+import model.dest_simple_mlp_tgtcls as model
 
 n_begin_end_pts = 5     # how many points we consider at the beginning and end of the known trajectory
 n_end_pts = 5

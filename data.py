@@ -179,15 +179,13 @@ taxi_columns_valid = taxi_columns + [
     ("time", lambda l: int(l[11])),
 ]
 
-train_files=["%s/split/train-%02d.csv" % (DATA_PATH, i) for i in range(100)]
-valid_files=["%s/split/valid2-cut.csv" % (DATA_PATH,)]
+valid_files=["%s/valid2-cut.csv" % (DATA_PATH,)]
 test_file="%s/test.csv" % (DATA_PATH,)
 
-train_data=TaxiData(train_files, taxi_columns)
 valid_data = TaxiData(valid_files, taxi_columns_valid)
 test_data = TaxiData(test_file, taxi_columns, has_header=True)
 
-valid_trips = [l for l in open(DATA_PATH + "/split/valid2-cut-ids.txt")]
+valid_trips = [l for l in open(DATA_PATH + "/valid2-cut-ids.txt")]
 
 def train_it():
     return DataIterator(DataStream(train_data))

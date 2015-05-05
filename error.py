@@ -35,3 +35,6 @@ def erdist(a, b):
     x = (lon2-lon1) * tensor.cos((lat1+lat2)/2)
     y = (lat2-lat1)
     return tensor.sqrt(tensor.sqr(x) + tensor.sqr(y)) * rearth
+
+def rmsle(a, b):
+    return tensor.sqrt( ( (tensor.log(a+1)-tensor.log(b+1)) ** 2 ).mean() )

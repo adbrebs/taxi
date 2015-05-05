@@ -1,4 +1,4 @@
-import model.simple_mlp as model
+import model.dest_simple_mlp as model
 
 import data
 

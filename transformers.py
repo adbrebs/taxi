@@ -32,7 +32,7 @@ class Select(Transformer):
 class TaxiGenerateSplits(Transformer):
     def __init__(self, data_stream, max_splits=-1):
         super(TaxiGenerateSplits, self).__init__(data_stream)
-        self.sources = data_stream.sources + ('destination_latitude', 'destination_longitude')
+        self.sources = data_stream.sources + ('destination_latitude', 'destination_longitude', 'time')
         self.max_splits = max_splits
         self.data = None
         self.splits = []
@@ -63,7 +63,7 @@ class TaxiGenerateSplits(Transformer):
         dlat = numpy.float32(self.data[self.id_latitude][-1])
         dlon = numpy.float32(self.data[self.id_longitude][-1])
 
-        return tuple(r + [dlat, dlon])
+        return tuple(r + [dlat, dlon, 15 * (len(self.data[self.id_longitude]) - 1)])
 
 class TaxiAddFirstK(Transformer):
     def __init__(self, k, stream):

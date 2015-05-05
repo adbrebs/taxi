@@ -1,15 +1,12 @@
-import numpy 
-
-import theano
-from theano import tensor
-
-from blocks.bricks import MLP, Rectifier, Linear, Sigmoid, Identity, Softmax
+from blocks.bricks import MLP, Rectifier, Linear, Sigmoid, Identity
 from blocks.bricks.lookup import LookupTable
 
 from blocks.initialization import IsotropicGaussian, Constant
 
+from theano import tensor
+
 import data
-import hdist
+import error
 
 class Model(object):
     def __init__(self, config):
@@ -32,20 +29,16 @@ class Model(object):
             embed_tables.append(tbl)
             input_list.append(tbl.apply(vardata))
 
-        y = tensor.concatenate((tensor.vector('destination_latitude')[:, None],
-                                tensor.vector('destination_longitude')[:, None]), axis=1)
+        y = tensor.lvector('time')
 
         # Define the model
-        mlp = MLP(activations=[Rectifier() for _ in config.dim_hidden] + [Softmax()],
+        mlp = MLP(activations=[Rectifier() for _ in config.dim_hidden] + [Identity()],
                            dims=[config.dim_input] + config.dim_hidden + [config.dim_output])
-        classes = theano.shared(numpy.array(config.tgtcls, dtype=theano.config.floatX), name='classes')
 
         # Create the Theano variables
         inputs = tensor.concatenate(input_list, axis=1)
-
         # inputs = theano.printing.Print("inputs")(inputs)
-        cls_probas = mlp.apply(inputs)
-        outputs = tensor.dot(cls_probas, classes)
+        outputs = tensor.exp(mlp.apply(inputs) + 2)
 
         # outputs = theano.printing.Print("outputs")(outputs)
         # y = theano.printing.Print("y")(y)
@@ -53,10 +46,8 @@ class Model(object):
         outputs.name = 'outputs'
 
         # Calculate the cost
-        cost = hdist.erdist(outputs, y).mean()
+        cost = error.rmsle(outputs.flatten(), y.flatten())
         cost.name = 'cost'
-        hcost = hdist.hdist(outputs, y).mean()
-        hcost.name = 'hcost'
 
         # Initialization
         for tbl in embed_tables:
@@ -69,5 +60,6 @@ class Model(object):
         mlp.initialize()
 
         self.cost = cost
-        self.hcost = hcost
+        self.monitor = [cost]
         self.outputs = outputs
+        self.pred_vars = ['time']
