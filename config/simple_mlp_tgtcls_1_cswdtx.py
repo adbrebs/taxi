@@ -18,6 +18,7 @@ dim_embeddings = [
     ('day_of_week', 7, 10),
     ('qhour_of_day', 24 * 4, 10),
     ('day_type', 3, 10),
+    ('taxi_id', 448, 10),
 ]
 
 dim_input = n_begin_end_pts * 2 * 2 + sum(x for (_, _, x) in dim_embeddings)

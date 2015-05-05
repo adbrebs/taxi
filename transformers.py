@@ -107,7 +107,8 @@ class TaxiAddDateTime(Transformer):
         data = next(self.child_epoch_iterator)
         ts = data[self.id_timestamp]
         date = datetime.datetime.utcfromtimestamp(ts)
-        info = (date.isocalendar()[1] - 1, date.weekday(), date.hour * 4 + date.minute / 15)
+        yearweek = date.isocalendar()[1] - 1
+        info = ((51 if yearweek == 52 else yearweek), date.weekday(), date.hour * 4 + date.minute / 15)
         return data + info
 
 class TaxiExcludeTrips(Transformer):
@@ -121,5 +122,4 @@ class TaxiExcludeTrips(Transformer):
             data = next(self.child_epoch_iterator)
             if not data[self.id_trip_id] in self.exclude: break
         return data
-
 
