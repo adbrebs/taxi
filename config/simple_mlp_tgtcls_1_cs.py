@@ -15,8 +15,12 @@ n_valid = 1000
 
 with open(data.DATA_PATH + "/arrival-clusters.pkl") as f: tgtcls = cPickle.load(f)
 
-dim_embed = 10
-dim_input = n_begin_end_pts * 2 * 2 + dim_embed + dim_embed
+dim_embeddings = [
+    ('origin_call', data.n_train_clients+1, 10),
+    ('origin_stand', data.n_stands+1, 10)
+]
+
+dim_input = n_begin_end_pts * 2 * 2 + sum(x for (_, _, x) in dim_embeddings)
 dim_hidden = [500]
 dim_output = tgtcls.shape[0]
 

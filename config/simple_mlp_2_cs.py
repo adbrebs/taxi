@@ -1,5 +1,7 @@
 import model.simple_mlp as model
 
+import data
+
 n_dow = 7       # number of division for dayofweek/dayofmonth/hourofday
 n_dom = 31
 n_hour = 24
@@ -9,8 +11,12 @@ n_end_pts = 5
 
 n_valid = 1000
 
-dim_embed = 10
-dim_input = n_begin_end_pts * 2 * 2 + dim_embed + dim_embed
+dim_embeddings = [
+    ('origin_call', data.n_train_clients+1, 10),
+    ('origin_stand', data.n_stands+1, 10)
+]
+
+dim_input = n_begin_end_pts * 2 * 2 + sum(x for (_, _, x) in dim_embeddings)
 dim_hidden = [200, 100]
 dim_output = 2
 
