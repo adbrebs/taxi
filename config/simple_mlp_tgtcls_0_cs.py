@@ -4,10 +4,6 @@ import data
 
 import model.simple_mlp_tgtcls as model
 
-n_dow = 7       # number of division for dayofweek/dayofmonth/hourofday
-n_dom = 31
-n_hour = 24
-
 n_begin_end_pts = 5     # how many points we consider at the beginning and end of the known trajectory
 n_end_pts = 5
 

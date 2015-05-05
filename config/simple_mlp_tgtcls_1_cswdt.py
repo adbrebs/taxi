@@ -13,7 +13,10 @@ with open(data.DATA_PATH + "/arrival-clusters.pkl") as f: tgtcls = cPickle.load(
 
 dim_embeddings = [
     ('origin_call', data.n_train_clients+1, 10),
-    ('origin_stand', data.n_stands+1, 10)
+    ('origin_stand', data.n_stands+1, 10),
+    ('week_of_year', 53, 10),
+    ('day_of_week', 7, 10),
+    ('qhour_of_day', 24 * 4, 10)
 ]
 
 dim_input = n_begin_end_pts * 2 * 2 + sum(x for (_, _, x) in dim_embeddings)
