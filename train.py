@@ -110,7 +110,7 @@ def main():
                 # Checkpoint('model.pkl', every_n_batches=100),
                 Dump('model_data/' + model_name, every_n_batches=1000),
                 LoadFromDump('model_data/' + model_name),
-                FinishAfter(after_epoch=5)
+                FinishAfter(after_epoch=10),
                 ]
 
     main_loop = MainLoop(
@@ -124,7 +124,7 @@ def main():
     # Produce an output on the test data
     test_stream = setup_test_stream()
 
-    outfile = open("test-output.csv", "w")
+    outfile = open("test-output-%s.csv" % model_name, "w")
     outcsv = csv.writer(outfile)
     outcsv.writerow(["TRIP_ID", "LATITUDE", "LONGITUDE"])
     for out in apply_model.Apply(outputs=outputs, stream=test_stream, return_vars=['trip_id', 'outputs']):
