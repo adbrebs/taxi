@@ -18,6 +18,7 @@ from blocks.main_loop import MainLoop
 from blocks.extensions import Printing, FinishAfter
 from blocks.extensions.saveload import Dump, LoadFromDump, Checkpoint
 from blocks.extensions.monitoring import DataStreamMonitoring, TrainingDataMonitoring
+from blocks.extensions.plot import Plot
 
 from data import transformers
 from data.hdf5 import TaxiDataset, TaxiStream
@@ -103,6 +104,7 @@ def main():
                                      prefix='valid',
                                      every_n_batches=1000),
                 Printing(every_n_batches=1000),
+                Plot(model_name, channels=[['valid_cost']], every_n_batches=1000),
                 # Checkpoint('model.pkl', every_n_batches=100),
                 Dump('model_data/' + model_name, every_n_batches=1000),
                 LoadFromDump('model_data/' + model_name),
