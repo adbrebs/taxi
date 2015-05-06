@@ -6,8 +6,6 @@ from theano import tensor
 from blocks.bricks import MLP, Rectifier, Linear, Sigmoid, Identity, Softmax
 from blocks.bricks.lookup import LookupTable
 
-from blocks.initialization import IsotropicGaussian, Constant
-
 import data
 import error
 
@@ -60,9 +58,9 @@ class Model(object):
 
         # Initialization
         for tbl in embed_tables:
-            tbl.weights_init = IsotropicGaussian(0.001)
-        mlp.weights_init = IsotropicGaussian(0.01)
-        mlp.biases_init = Constant(0.001)
+            tbl.weights_init = config.embed_weights_init
+        mlp.weights_init = config.mlp_weights_init
+        mlp.biases_init = config.mlp_biases_init
 
         for tbl in embed_tables:
             tbl.initialize()

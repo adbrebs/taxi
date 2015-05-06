@@ -34,7 +34,7 @@ class Select(Transformer):
 class TaxiGenerateSplits(Transformer):
     def __init__(self, data_stream, max_splits=-1):
         super(TaxiGenerateSplits, self).__init__(data_stream)
-        self.sources = data_stream.sources + ('destination_latitude', 'destination_longitude', 'time')
+        self.sources = data_stream.sources + ('destination_latitude', 'destination_longitude', 'travel_time')
         self.max_splits = max_splits
         self.data = None
         self.splits = []

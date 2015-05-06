@@ -1,8 +1,10 @@
 import cPickle
 
+from blocks.initialization import IsotropicGaussian, Constant
+
 import data
 
-import model.dest_simple_mlp_tgtcls_alexandre as model
+import model.dest_simple_mlp_tgtcls as model
 
 n_begin_end_pts = 5     # how many points we consider at the beginning and end of the known trajectory
 n_end_pts = 5
@@ -24,6 +26,10 @@ dim_embeddings = [
 dim_input = n_begin_end_pts * 2 * 2 + sum(x for (_, _, x) in dim_embeddings)
 dim_hidden = [500]
 dim_output = tgtcls.shape[0]
+
+embed_weights_init = IsotropicGaussian(0.01)
+mlp_weights_init = IsotropicGaussian(0.1) 
+mlp_biases_init = Constant(0.01)
 
 learning_rate = 0.01
 momentum = 0.9
