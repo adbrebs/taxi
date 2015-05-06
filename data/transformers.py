@@ -1,10 +1,12 @@
-from fuel.transformers import Transformer, Filter, Mapping
+import datetime
+import random
+
 import numpy
 import theano
-import random
+from fuel.transformers import Transformer
+
 import data
 
-import datetime
 
 def at_least_k(k, v, pad_at_begin, is_longitude):
     if len(v) == 0:

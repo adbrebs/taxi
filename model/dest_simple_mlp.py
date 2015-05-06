@@ -11,11 +11,11 @@ import error
 class Model(object):
     def __init__(self, config):
         # The input and the targets
-        x_firstk_latitude = (tensor.matrix('first_k_latitude') - data.porto_center[0]) / data.data_std[0]
-        x_firstk_longitude = (tensor.matrix('first_k_longitude') - data.porto_center[1]) / data.data_std[1]
+        x_firstk_latitude = (tensor.matrix('first_k_latitude') - data.train_gps_mean[0]) / data.train_gps_std[0]
+        x_firstk_longitude = (tensor.matrix('first_k_longitude') - data.train_gps_mean[1]) / data.train_gps_std[1]
 
-        x_lastk_latitude = (tensor.matrix('last_k_latitude') - data.porto_center[0]) / data.data_std[0]
-        x_lastk_longitude = (tensor.matrix('last_k_longitude') - data.porto_center[1]) / data.data_std[1]
+        x_lastk_latitude = (tensor.matrix('last_k_latitude') - data.train_gps_mean[0]) / data.train_gps_std[0]
+        x_lastk_longitude = (tensor.matrix('last_k_longitude') - data.train_gps_mean[1]) / data.train_gps_std[1]
 
         input_list = [x_firstk_latitude, x_firstk_longitude, x_lastk_latitude, x_lastk_longitude]
         embed_tables = []
@@ -43,7 +43,7 @@ class Model(object):
 
         # Normalize & Center
         # outputs = theano.printing.Print("normal_outputs")(outputs)
-        outputs = data.data_std * outputs + data.porto_center
+        outputs = data.train_gps_std * outputs + data.train_gps_mean
 
         # outputs = theano.printing.Print("outputs")(outputs)
         # y = theano.printing.Print("y")(y)

@@ -1,103 +1,14 @@
-import ast, csv
-import socket
-import fuel
+import ast
+import csv
 import numpy
-import h5py
-from enum import Enum
+
 from fuel.datasets import Dataset
 from fuel.streams import DataStream
 from fuel.iterator import DataIterator
-import theano
 
-if socket.gethostname() == "adeb.laptop":
-    DATA_PATH = "/Users/adeb/data/taxi"
-else:
-    DATA_PATH="/data/lisatmp3/auvolat/taxikaggle"
+import data
+from data.hdf5 import origin_call_normalize, taxi_id_normalize
 
-H5DATA_PATH = '/data/lisatmp3/simonet/taxi/data.hdf5'
-
-porto_center = numpy.array([41.1573, -8.61612], dtype=theano.config.floatX)
-data_std = numpy.sqrt(numpy.array([0.00549598, 0.00333233], dtype=theano.config.floatX))
-
-n_clients = 57124
-n_train_clients = 57105
-n_stands = 63
-
-dataset_size = 1710670
-
-# ---- Read client IDs and create reverse dictionnary
-
-def make_client_ids():
-    f = h5py.File(H5DATA_PATH, "r")
-    l = f['unique_origin_call']
-    r = {l[i]: i for i in range(l.shape[0])}
-    return r
-
-client_ids = make_client_ids()
-
-def get_client_id(n):
-    if n in client_ids and client_ids[n] <= n_train_clients:
-        return client_ids[n]
-    else:
-        return 0
-
-# ---- Read taxi IDs and create reverse dictionnary
-
-def make_taxi_ids():
-    f = h5py.File(H5DATA_PATH, "r")
-    l = f['unique_taxi_id']
-    r = {l[i]: i for i in range(l.shape[0])}
-    return r
-
-taxi_ids = make_taxi_ids()
-        
-# ---- Enum types
-
-class CallType(Enum):
-    CENTRAL = 0
-    STAND = 1
-    STREET = 2
-
-    @classmethod
-    def from_data(cls, val):
-        if val=='A':
-            return cls.CENTRAL
-        elif val=='B':
-            return cls.STAND
-        elif val=='C':
-            return cls.STREET
-
-    @classmethod
-    def to_data(cls, val):
-        if val==cls.CENTRAL:
-            return 'A'
-        elif val==cls.STAND:
-            return 'B'
-        elif val==cls.STREET:
-            return 'C'
-
-class DayType(Enum):
-    NORMAL = 0
-    HOLIDAY = 1
-    HOLIDAY_EVE = 2
-
-    @classmethod
-    def from_data(cls, val):
-        if val=='A':
-            return cls.NORMAL
-        elif val=='B':
-            return cls.HOLIDAY
-        elif val=='C':
-            return cls.HOLIDAY_EVE
-
-    @classmethod
-    def to_data(cls, val):
-        if val==cls.NORMAL:
-            return 'A'
-        elif val==cls.HOLIDAY:
-            return 'B'
-        elif val==cls.HOLIDAY_EVE:
-            return 'C'
 
 class TaxiData(Dataset):
     example_iteration_scheme=None
@@ -161,10 +72,10 @@ class TaxiData(Dataset):
 
 taxi_columns = [
     ("trip_id", lambda l: l[0]),
-    ("call_type", lambda l: CallType.from_data(l[1])),
-    ("origin_call", lambda l: 0 if l[2] == '' or l[2] == 'NA' else get_client_id(int(l[2]))),
+    ("call_type", lambda l: ord(l[1])-ord('A')),
+    ("origin_call", lambda l: 0 if l[2] == '' or l[2] == 'NA' else origin_call_normalize(int(l[2]))),
     ("origin_stand", lambda l: 0 if l[3] == '' or l[3] == 'NA' else int(l[3])),
-    ("taxi_id", lambda l: taxi_ids[int(l[4])]),
+    ("taxi_id", lambda l: taxi_id_normalize(int(l[4]))),
     ("timestamp", lambda l: int(l[5])),
     ("day_type", lambda l: ord(l[6])-ord('A')),
     ("missing_data", lambda l: l[7][0] == 'T'),
@@ -179,18 +90,18 @@ taxi_columns_valid = taxi_columns + [
     ("time", lambda l: int(l[11])),
 ]
 
-valid_files=["%s/valid2-cut.csv" % (DATA_PATH,)]
-test_file="%s/test.csv" % (DATA_PATH,)
+train_file="%s/train.csv" % data.path
+valid_file="%s/valid2-cut.csv" % data.path
+test_file="%s/test.csv" % data.path
 
-valid_data = TaxiData(valid_files, taxi_columns_valid)
+train_data=TaxiData(train_file, taxi_columns, has_header=True)
+valid_data = TaxiData(valid_file, taxi_columns_valid)
 test_data = TaxiData(test_file, taxi_columns, has_header=True)
 
-valid_trips = [l for l in open(DATA_PATH + "/valid2-cut-ids.txt")]
+valid_trips = [l for l in open("%s/valid2-cut-ids.txt" % data.path)]
 
 def train_it():
     return DataIterator(DataStream(train_data))
 
 def test_it():
     return DataIterator(DataStream(valid_data))
-
-

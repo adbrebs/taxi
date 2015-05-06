@@ -1,15 +1,17 @@
 #!/usr/bin/env python
-import os, h5py, csv, sys, numpy, theano, ast
+
+import ast
+import csv
+import os
+import sys
+
+import h5py
+import numpy
+import theano
 from fuel.converters.base import fill_hdf5_file
 
-test_size = 320 # `wc -l test.csv` - 1 # Minus 1 to ignore the header
-train_size = 1710670 # `wc -l train.csv` - 1
+import data
 
-stands_size = 63 # `wc -l metaData_taxistandsID_name_GPSlocation.csv` - 1
-taxi_id_size = 448 # `cut -d, -f 5 train.csv test.csv | sort -u | wc -l` - 1
-origin_call_size = 57124 # `cut -d, -f 3 train.csv test.csv | sort -u | wc -l` - 3 # Minus 3 to ignore "NA", "" and the header
-
-Polyline = h5py.special_dtype(vlen=theano.config.floatX)
 
 taxi_id_dict = {}
 origin_call_dict = {0: 0}
@@ -29,9 +31,9 @@ def get_unique_origin_call(val):
         return len(origin_call_dict) - 1
 
 def read_stands(input_directory, h5file):
-    stands_name = numpy.empty(shape=(stands_size+1,), dtype=('a', 24))
-    stands_latitude = numpy.empty(shape=(stands_size+1,), dtype=theano.config.floatX)
-    stands_longitude = numpy.empty(shape=(stands_size+1,), dtype=theano.config.floatX)
+    stands_name = numpy.empty(shape=(data.stands_size,), dtype=('a', 24))
+    stands_latitude = numpy.empty(shape=(data.stands_size,), dtype=theano.config.floatX)
+    stands_longitude = numpy.empty(shape=(data.stands_size,), dtype=theano.config.floatX)
     stands_name[0] = 'None'
     stands_latitude[0] = stands_longitude[0] = 0
     with open(os.path.join(input_directory, 'metaData_taxistandsID_name_GPSlocation.csv'), 'r') as f:
@@ -48,7 +50,7 @@ def read_stands(input_directory, h5file):
 
 def read_taxis(input_directory, h5file, dataset):
     print >> sys.stderr, 'read %s: begin' % dataset
-    size=globals()['%s_size'%dataset]
+    size=getattr(data, '%s_size'%dataset)
     trip_id = numpy.empty(shape=(size,), dtype='S19')
     call_type = numpy.empty(shape=(size,), dtype=numpy.uint8)
     origin_call = numpy.empty(shape=(size,), dtype=numpy.uint32)
@@ -57,8 +59,8 @@ def read_taxis(input_directory, h5file, dataset):
     timestamp = numpy.empty(shape=(size,), dtype=numpy.uint32)
     day_type = numpy.empty(shape=(size,), dtype=numpy.uint8)
     missing_data = numpy.empty(shape=(size,), dtype=numpy.bool)
-    latitude = numpy.empty(shape=(size,), dtype=Polyline)
-    longitude = numpy.empty(shape=(size,), dtype=Polyline)
+    latitude = numpy.empty(shape=(size,), dtype=data.Polyline)
+    longitude = numpy.empty(shape=(size,), dtype=data.Polyline)
     with open(os.path.join(input_directory, '%s.csv'%dataset), 'r') as f:
         reader = csv.reader(f)
         reader.next() # header
@@ -86,13 +88,13 @@ def read_taxis(input_directory, h5file, dataset):
     return splits
 
 def unique(h5file):
-    unique_taxi_id = numpy.empty(shape=(taxi_id_size,), dtype=numpy.uint32)
-    assert len(taxi_id_dict) == taxi_id_size
+    unique_taxi_id = numpy.empty(shape=(data.taxi_id_size,), dtype=numpy.uint32)
+    assert len(taxi_id_dict) == data.taxi_id_size
     for k, v in taxi_id_dict.items():
         unique_taxi_id[v] = k
 
-    unique_origin_call = numpy.empty(shape=(origin_call_size+1,), dtype=numpy.uint32)
-    assert len(origin_call_dict) == origin_call_size+1
+    unique_origin_call = numpy.empty(shape=(data.origin_call_size,), dtype=numpy.uint32)
+    assert len(origin_call_dict) == data.origin_call_size
     for k, v in origin_call_dict.items():
         unique_origin_call[v] = k
 
