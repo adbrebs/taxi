@@ -27,7 +27,7 @@ from blocks.graph import ComputationGraph
 from blocks.main_loop import MainLoop
 from blocks.extensions import Printing, FinishAfter
 from blocks.extensions.saveload import Dump, LoadFromDump, Checkpoint
-from blocks.extensions.monitoring import DataStreamMonitoring
+from blocks.extensions.monitoring import DataStreamMonitoring, TrainingDataMonitoring
 
 import data
 import transformers
@@ -107,7 +107,8 @@ def main():
         step_rule=Momentum(learning_rate=config.learning_rate, momentum=config.momentum),
         params=params)
 
-    extensions=[DataStreamMonitoring(model.monitor, valid_stream,
+    extensions=[TrainingDataMonitoring(model.monitor, prefix='train', every_n_batches=1000),
+                DataStreamMonitoring(model.monitor, valid_stream,
                                      prefix='valid',
                                      every_n_batches=1000),
                 Printing(every_n_batches=1000),
