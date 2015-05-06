@@ -6,7 +6,6 @@ import sys
 
 import h5py
 import numpy
-import theano
 
 import data
 
@@ -22,8 +21,8 @@ _fields = {
     'missing_data': numpy.bool,
     'latitude': data.Polyline,
     'longitude': data.Polyline,
-    'destination_latitude': theano.config.floatX,
-    'destination_longitude': theano.config.floatX,
+    'destination_latitude': numpy.float32,
+    'destination_longitude': numpy.float32,
     'travel_time': numpy.uint32,
 }
 
