@@ -108,7 +108,7 @@ def main():
                 # Checkpoint('model.pkl', every_n_batches=100),
                 Dump('model_data/' + model_name, every_n_batches=1000),
                 LoadFromDump('model_data/' + model_name),
-                FinishAfter(after_epoch=42),
+                # FinishAfter(after_epoch=42),
                 ]
 
     main_loop = MainLoop(
@@ -124,12 +124,12 @@ def main():
 
     outfile = open("output/test-output-%s.csv" % model_name, "w")
     outcsv = csv.writer(outfile)
-    if model.pred_vars == ['time']:
+    if model.pred_vars == ['travel_time']:
         outcsv.writerow(["TRIP_ID", "TRAVEL_TIME"])
         for out in apply_model.Apply(outputs=outputs, stream=test_stream, return_vars=['trip_id', 'outputs']):
             time = out['outputs']
             for i, trip in enumerate(out['trip_id']):
-                outcsv.writerow([trip, int(time[i, 0])])
+                outcsv.writerow([trip, int(time[i])])
     else:
         outcsv.writerow(["TRIP_ID", "LATITUDE", "LONGITUDE"])
         for out in apply_model.Apply(outputs=outputs, stream=test_stream, return_vars=['trip_id', 'outputs']):
