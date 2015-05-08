@@ -41,6 +41,9 @@ dim_output_dest = len(dest_tgtcls)
 dim_hidden_time = []
 dim_output_time = len(time_tgtcls)
 
+# Cost ratio between distance cost and time cost
+time_cost_factor = 4
+
 embed_weights_init = IsotropicGaussian(0.001)
 mlp_weights_init = IsotropicGaussian(0.01)
 mlp_biases_init = Constant(0.001)
