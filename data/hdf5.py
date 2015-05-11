@@ -19,6 +19,11 @@ class TaxiDataset(H5PYDataset):
     def data_path(self):
         return os.path.join(data.path, self.filename)
 
+    def extract(self, request):
+        if not self.load_in_memory:
+            raise ValueError('extract called on a dataset not loaded in memory')
+        return dict(zip(self.sources, self.get_data(None, request)))
+
 class TaxiStream(DataStream):
     def __init__(self, which_set, filename='data.hdf5', iteration_scheme=None, **kwargs):
         dataset = TaxiDataset(which_set, filename, **kwargs)
