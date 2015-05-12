@@ -1,0 +1,71 @@
+<html lang="en">
+<head>
+	<title>Taxi Visualizer</title>
+	<meta charset="UTF-8" />
+	<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+	<link rel="stylesheet" href="http://openlayers.org/en/v3.4.0/css/ol.css">
+	<link rel="stylesheet" href="style.css">
+
+	<script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+	<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+	<script src="http://openlayers.org/en/v3.4.0/build/ol.js"></script>
+	<script src="script.js"></script>
+</head>
+<body>
+	<div id="map" class="map">
+		<div id="featureinfo">
+			<div id="featureinfo-static"></div>
+			<div id="featureinfo-dynamic"></div>
+		</div>
+		<div id="coordinfo"></div>
+	</div>
+	<div id="config">
+		<ul>
+			<li>Measure
+				<ul id="config-measure">
+					<li>Enable</li>
+					<li style="display: none;">Disable</li>
+					<li><input type="checkbox" id="measure-euclidean"><label for="measure-euclidean">Euclidean</label></li>
+					<li><input type="checkbox" id="measure-equirectangular"><label for="measure-equirectangular">Equirectangular</label></li>
+					<li><input type="checkbox" id="measure-haversine" checked><label for="measure-haversine">Haversine</label></li>
+					<li>Clear</li>
+				</ul>
+			</li>
+			<li>Base layer
+				<ul id="config-layer">
+					<li>OSM</li>
+					<li>Bing</li>
+					<li>Bing (no labels)</li>
+				</ul>
+			</li>
+			<li>Path draw options
+				<ul id="config-pathdraw">
+					<li>No points</li>
+					<li>Endpoints</li>
+					<li>All points</li>
+					<li>Set resolution</li>
+				</ul>
+			</li>
+			<li>Heatmap options
+				<ul id="config-heatmap">
+					<li>Set radius</li>
+					<li>Set blur</li>
+				</ul>
+			</li>
+			<li style="display: none;">Enable coord</li>
+			<li>Disable coord</li>
+			<li>Set player speed</li>
+		</ul>
+	</div>
+	<div id="datalist">
+		<div id="datalist-tree">
+			<ul></ul>
+		</div>
+		<div id="dataextract">
+			<input type="text">
+			<button type="button">Clear</button>
+			<button type="button">Refresh</button>
+		</div>
+	</div>
+</body>
+</html>

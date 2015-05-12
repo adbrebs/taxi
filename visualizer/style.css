@@ -1,0 +1,124 @@
+.map {
+	position: fixed;
+	left: 0; right:0; top:0; bottom:0;
+	z-index: 0;
+}
+
+.open-datalist {
+	top: .5em;
+	right: .5em;
+	z-index: 10;
+}
+
+#datalist {
+	position: fixed;
+	right:0; top:0; bottom:0;
+	width: 20em;
+	display: none;
+	z-index: 1;
+	background-color: #fff;
+	border-left: solid 1px black;
+}
+
+#datalist-tree {
+	position: absolute;
+	left:0; top:0; bottom:4em;
+	width: 100%;
+	overflow-y: auto;
+}
+
+#datalist-tree > ul {
+	padding-left: 0.5em;
+}
+
+#datalist-tree li > ul {
+	padding-left: 1.5em;
+}
+
+#datalist-tree li {
+	list-style-type: none;
+}
+
+#dataextract {
+	position: fixed;
+	bottom: 0;
+	height: 3.5em;
+}
+
+#dataextract input { width: 100%; }
+
+.open-config {
+	top: 65px;
+	left: .5em;
+	z-index: 10;
+}
+
+#config {
+	position: absolute;
+	left: 2em; top: 65px;
+	display: none;
+	z-index: 2;
+}
+
+#config ul ul {
+	top: 0px !important;
+	width: 12em;
+}
+
+.measure-tooltip {
+	position: relative;
+	background: rgba(0, 0, 0, 0.5);
+	border-radius: 4px;
+	color: white;
+	padding: 4px 8px;
+	opacity: 0.7;
+	white-space: nowrap;
+}
+
+.measure-tooltip-value {
+	opacity: 1;
+	font-weight: bold;
+}
+
+.measure-tooltip-static {
+	background-color: #ffcc33;
+	color: black;
+	border: 1px solid #fff;
+}
+
+.measure-tooltip-value:before,
+.measure-tooltip-static:before {
+	border-top: 6px solid rgba(0, 0, 0, 0.5);
+	border-right: 6px solid transparent;
+	border-left: 6px solid transparent;
+	content: "";
+	position: absolute;
+	bottom: -6px;
+	margin-left: -7px;
+	left: 50%;
+}
+
+.measure-tooltip-static:before {
+	border-top-color: #ffcc33;
+}
+
+#featureinfo {
+	position: absolute;
+	z-index: 100;
+	color: #fff;
+	background-color: #000;
+	border: solid 1px #fff;
+	border-radius: 10px;
+	padding: 4px;
+	opacity: 0.75;
+}
+
+#coordinfo {
+	position: absolute;
+	left: 0; bottom: 0;
+	z-index: 100;
+	color: #fff;
+	background-color: #000;
+	padding: 3px;
+	opacity: 0.66;
+}
