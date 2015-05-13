@@ -1,6 +1,9 @@
 from blocks.bricks import MLP, Rectifier, Linear, Sigmoid, Identity, Softmax
 from blocks.bricks.lookup import LookupTable
 
+from blocks.filter import VariableFilter
+from blocks.graph import ComputationGraph, apply_dropout
+
 import numpy
 import theano
 from theano import tensor
@@ -74,6 +77,18 @@ class Model(object):
         time_scost.name = 'time_scost'
 
         cost = dest_cost + time_scost
+
+        if hasattr(config, 'dropout_p'):
+            cg = ComputationGraph(cost)
+            dropout_inputs = VariableFilter(
+                    bricks=[b for b in list(common_mlp.children) +
+                                       list(dest_mlp.children) +
+                                       list(time_mlp.children)
+                              if isinstance(b, Rectifier)],
+                    name='output')(cg)
+            cg = apply_dropout(cg, dropout_inputs, config.dropout_p)
+            cost = cg.outputs[0]
+
         cost.name = 'cost'
 
         # Initialization
