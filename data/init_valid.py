@@ -12,18 +12,18 @@ import data
 
 _fields = {
     'trip_id': 'S19',
-    'call_type': numpy.uint8,
-    'origin_call': numpy.uint32,
-    'origin_stand': numpy.uint8,
-    'taxi_id': numpy.uint16,
-    'timestamp': numpy.uint32,
-    'day_type': numpy.uint8,
+    'call_type': numpy.int8,
+    'origin_call': numpy.int32,
+    'origin_stand': numpy.int8,
+    'taxi_id': numpy.int16,
+    'timestamp': numpy.int32,
+    'day_type': numpy.int8,
     'missing_data': numpy.bool,
     'latitude': data.Polyline,
     'longitude': data.Polyline,
     'destination_latitude': numpy.float32,
     'destination_longitude': numpy.float32,
-    'travel_time': numpy.uint32,
+    'travel_time': numpy.int32,
 }
 
 
