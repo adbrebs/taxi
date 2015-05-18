@@ -45,7 +45,7 @@ if __name__ == "__main__":
             dest_outcsv.writerow([d['trip_id'][0], destination[0, 0], destination[0, 1]])
         if 'duration' in outputs:
             duration = output_values[outputs.index('duration')]
-            time_outcsv.writerow([d['trip_id'][0], duration[0]])
+            time_outcsv.writerow([d['trip_id'][0], int(round(duration[0]))])
 
     if 'destination' in outputs:
         dest_outfile.close()
