@@ -1,5 +1,8 @@
 import cPickle
 
+from blocks import roles
+from blocks.bricks import Rectifier
+from blocks.filter import VariableFilter
 from blocks.initialization import IsotropicGaussian, Constant
 
 import data
@@ -48,8 +51,12 @@ embed_weights_init = IsotropicGaussian(0.001)
 mlp_weights_init = IsotropicGaussian(0.01)
 mlp_biases_init = Constant(0.001)
 
-learning_rate = 0.0001
-momentum = 0.99
 batch_size = 200
+
+dropout = 0.5
+dropout_inputs = VariableFilter(bricks=[Rectifier], name='output')
+
+noise = 0.01
+noise_inputs = VariableFilter(roles=[roles.PARAMETER])
 
 valid_set = 'cuts/test_times_0'

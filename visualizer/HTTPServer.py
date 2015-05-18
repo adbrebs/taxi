@@ -7,8 +7,6 @@ import SimpleHTTPServer
 import SocketServer
 from cStringIO import StringIO
 
-import h5py
-
 import data
 from data.hdf5 import TaxiDataset
 from visualizer import Vlist, Path

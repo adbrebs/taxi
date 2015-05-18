@@ -1,73 +1,34 @@
-import numpy 
-
+import numpy
 import theano
 from theano import tensor
+from blocks.bricks import application, Softmax
 
-from blocks.bricks import MLP, Rectifier, Linear, Sigmoid, Identity, Softmax
-from blocks.bricks.lookup import LookupTable
-
-import data
 import error
+from model.mlp import FFMLP, Stream
 
-class Model(object):
-    def __init__(self, config):
-        # The input and the targets
-        x_firstk_latitude = (tensor.matrix('first_k_latitude') - data.train_gps_mean[0]) / data.train_gps_std[0]
-        x_firstk_longitude = (tensor.matrix('first_k_longitude') - data.train_gps_mean[1]) / data.train_gps_std[1]
 
-        x_lastk_latitude = (tensor.matrix('last_k_latitude') - data.train_gps_mean[0]) / data.train_gps_std[0]
-        x_lastk_longitude = (tensor.matrix('last_k_longitude') - data.train_gps_mean[1]) / data.train_gps_std[1]
+class Model(FFMLP):
+    def __init__(self, config, **kwargs):
+        super(Model, self, output_layer=Softmax).__init__(config, **kwargs)
+        self.classes = theano.shared(numpy.array(config.tgtcls, dtype=theano.config.floatX), name='classes')
 
-        input_list = [x_firstk_latitude, x_firstk_longitude, x_lastk_latitude, x_lastk_longitude]
-        embed_tables = []
+    @application(outputs=['destination'])
+    def predict(self, **kwargs):
+        cls_probas = super(Model, self).predict(**kwargs)
+        return tensor.dot(cls_probas, self.classes)
 
-        self.require_inputs = ['first_k_latitude', 'first_k_longitude', 'last_k_latitude', 'last_k_longitude']
+    @predict.property('inputs')
+    def predict_inputs(self):
+        return self.inputs
 
-        for (varname, num, dim) in config.dim_embeddings:
-            self.require_inputs.append(varname)
-            vardata = tensor.lvector(varname)
-            tbl = LookupTable(length=num, dim=dim, name='%s_lookup'%varname)
-            embed_tables.append(tbl)
-            input_list.append(tbl.apply(vardata))
+    @application(outputs=['cost'])
+    def cost(self, **kwargs):
+        y_hat = self.predict(**kwargs)
+        y = tensor.concatenate((kwargs['destination_latitude'][:, None],
+                                kwargs['destination_longitude'][:, None]), axis=1)
 
-        y = tensor.concatenate((tensor.vector('destination_latitude')[:, None],
-                                tensor.vector('destination_longitude')[:, None]), axis=1)
+        return error.erdist(y_hat, y).mean()
 
-        # Define the model
-        mlp = MLP(activations=[Rectifier() for _ in config.dim_hidden] + [Softmax()],
-                           dims=[config.dim_input] + config.dim_hidden + [config.dim_output])
-        classes = theano.shared(numpy.array(config.tgtcls, dtype=theano.config.floatX), name='classes')
-
-        # Create the Theano variables
-        inputs = tensor.concatenate(input_list, axis=1)
-
-        # inputs = theano.printing.Print("inputs")(inputs)
-        cls_probas = mlp.apply(inputs)
-        outputs = tensor.dot(cls_probas, classes)
-
-        # outputs = theano.printing.Print("outputs")(outputs)
-        # y = theano.printing.Print("y")(y)
-
-        outputs.name = 'outputs'
-
-        # Calculate the cost
-        cost = error.erdist(outputs, y).mean()
-        cost.name = 'cost'
-        hcost = error.hdist(outputs, y).mean()
-        hcost.name = 'hcost'
-
-        # Initialization
-        for tbl in embed_tables:
-            tbl.weights_init = config.embed_weights_init
-        mlp.weights_init = config.mlp_weights_init
-        mlp.biases_init = config.mlp_biases_init
-
-        for tbl in embed_tables:
-            tbl.initialize()
-        mlp.initialize()
-
-        self.cost = cost
-        self.monitor = [cost, hcost]
-        self.outputs = outputs
-        self.pred_vars = ['destination_latitude', 'destination_longitude']
-
+    @cost.property('inputs')
+    def cost_inputs(self):
+        return self.inputs + ['destination_latitude', 'destination_longitude']
