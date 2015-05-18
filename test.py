@@ -28,11 +28,11 @@ if __name__ == "__main__":
     model.set_param_values(parameters)
 
     if 'destination' in outputs:
-        dest_outfile = open("output/test-dest-output-%s.csv" % model_name, "w")
+        dest_outfile = open(os.path.join('output', 'test-dest-output-%s.csv' % model_name), 'w')
         dest_outcsv = csv.writer(dest_outfile)
         dest_outcsv.writerow(["TRIP_ID", "LATITUDE", "LONGITUDE"])
     if 'duration' in outputs:
-        time_outfile = open("output/test-time-output-%s.csv" % model_name, "w")
+        time_outfile = open(os.path.join('output', 'test-time-output-%s.csv' % model_name), 'w')
         time_outcsv = csv.writer(time_outfile)
         time_outcsv.writerow(["TRIP_ID", "TRAVEL_TIME"])
 
@@ -46,3 +46,8 @@ if __name__ == "__main__":
         if 'duration' in outputs:
             duration = output_values[outputs.index('duration')]
             time_outcsv.writerow([d['trip_id'][0], duration[0]])
+
+    if 'destination' in outputs:
+        dest_outfile.close()
+    if 'duration' in outputs:
+        time_outfile.close()

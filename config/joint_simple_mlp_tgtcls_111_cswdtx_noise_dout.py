@@ -1,3 +1,4 @@
+import os
 import cPickle
 
 from blocks import roles
@@ -14,7 +15,7 @@ n_end_pts = 5
 
 n_valid = 1000
 
-with open("%s/arrival-clusters.pkl" % data.path) as f:
+with open(os.path.join(data.path, 'arrival-clusters.pkl')) as f:
     dest_tgtcls = cPickle.load(f)
 
 # generate target classes for time prediction as a Fibonacci sequence

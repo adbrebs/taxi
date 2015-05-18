@@ -1,3 +1,4 @@
+import os
 import cPickle
 
 from blocks.initialization import IsotropicGaussian, Constant
@@ -11,7 +12,7 @@ n_end_pts = 5
 
 n_valid = 1000
 
-with open("%s/arrival-clusters.pkl" % data.path) as f: tgtcls = cPickle.load(f)
+with open(os.path.join(data.path, 'arrival-clusters.pkl')) as f: tgtcls = cPickle.load(f)
 
 dim_embeddings = [
     ('origin_call', data.origin_call_train_size, 10),
