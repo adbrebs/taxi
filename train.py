@@ -73,7 +73,7 @@ def setup_test_stream(req_vars):
     test = transformers.TaxiAddFirstLastLen(config.n_begin_end_pts, test)
     test = transformers.Select(test, tuple(req_vars))
 
-    test_stream = Batch(test, iteration_scheme=ConstantScheme(1000))
+    test_stream = Batch(test, iteration_scheme=ConstantScheme(1))
 
     return test_stream
 
@@ -100,8 +100,8 @@ def main():
         cost=cost,
         step_rule=CompositeRule([
                 RemoveNotFinite(),
-                #AdaDelta(decay_rate=0.95),
-                Momentum(learning_rate=config.learning_rate, momentum=config.momentum),
+                AdaDelta(),
+                #Momentum(learning_rate=config.learning_rate, momentum=config.momentum),
         ]),
         params=params)
     

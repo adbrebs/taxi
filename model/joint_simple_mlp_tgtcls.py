@@ -58,10 +58,12 @@ class Model(object):
         hidden = common_mlp.apply(inputs)
 
         dest_cls_probas = dest_mlp.apply(hidden)
+        # dest_cls_probas = theano.printing.Print("dest_cls_probas")(dest_cls_probas)
         dest_outputs = tensor.dot(dest_cls_probas, dest_classes)
         dest_outputs.name = 'dest_outputs'
 
         time_cls_probas = time_mlp.apply(hidden)
+        # time_cls_probas = theano.printing.Print("time_cls_probas")(time_cls_probas)
         time_outputs = tensor.dot(time_cls_probas, time_classes) + x_input_time
         time_outputs.name = 'time_outputs'
 
