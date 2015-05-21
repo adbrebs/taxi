@@ -68,6 +68,7 @@ if __name__ == "__main__":
         step_rule=CompositeRule([
                 RemoveNotFinite(),
                 AdaDelta(),
+                #Momentum(learning_rate=config.learning_rate, momentum=config.momentum),
             ]),
         params=params)
     
