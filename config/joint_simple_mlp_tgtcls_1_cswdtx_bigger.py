@@ -1,17 +1,18 @@
+import os
 import cPickle
-
-import model.joint_simple_mlp_tgtcls as model
 
 from blocks.initialization import IsotropicGaussian, Constant
 
 import data
+from model.joint_simple_mlp_tgtcls import Model, Stream
+
 
 n_begin_end_pts = 7     # how many points we consider at the beginning and end of the known trajectory
 n_end_pts = 7
 
 n_valid = 1000
 
-with open("%s/arrival-clusters.pkl" % data.path) as f:
+with open(os.path.join(data.path, 'arrival-clusters.pkl')) as f:
     dest_tgtcls = cPickle.load(f)
 
 # generate target classes for time prediction as a Fibonacci sequence
