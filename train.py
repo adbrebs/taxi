@@ -78,12 +78,11 @@ if __name__ == "__main__":
 
     cost = model.cost(**inputs)
     cg = ComputationGraph(cost)
-    unmonitor = set()
+    monitored = set([cost] + VariableFilter(roles=[roles.COST])(cg.variables))
+
     if hasattr(config, 'dropout') and config.dropout < 1.0:
-        unmonitor.update(VariableFilter(roles=[roles.COST])(cg.variables))
         cg = apply_dropout(cg, config.dropout_inputs(cg), config.dropout)
     if hasattr(config, 'noise') and config.noise > 0.0:
-        unmonitor.update(VariableFilter(roles=[roles.COST])(cg.variables))
         cg = apply_noise(cg, config.noise_inputs(cg), config.noise)
     cost = cg.outputs[0]
     cg = Model(cost)
@@ -105,7 +104,6 @@ if __name__ == "__main__":
             ]),
         params=params)
     
-    monitored = set([cost] + VariableFilter(roles=[roles.COST])(cg.variables)) - unmonitor
     plot_vars = [['valid_' + x.name for x in monitored]]
     logger.info('Plotted variables: %s' % str(plot_vars))
 
