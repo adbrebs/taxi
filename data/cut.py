@@ -24,8 +24,10 @@ class TaxiTimeCutScheme(IterationScheme):
         with sqlite3.connect(self.dbfile) as db:
             c = db.cursor()
             for cut in cuts:
-                l = l + [i for (i,) in
-                    c.execute('SELECT trip FROM trip_times WHERE begin <= ? AND end >= ?', (cut, cut))]
+                part = [i for (i,) in
+                    c.execute('SELECT trip FROM trip_times WHERE begin >= ? AND begin <= ? AND end >= ?',
+                                (cut - 40000, cut, cut))]
+                l = l + part
                 
         return iter_(l)
 

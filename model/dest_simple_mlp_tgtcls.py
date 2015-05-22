@@ -9,7 +9,7 @@ from model.mlp import FFMLP, Stream
 
 class Model(FFMLP):
     def __init__(self, config, **kwargs):
-        super(Model, self, output_layer=Softmax).__init__(config, **kwargs)
+        super(Model, self).__init__(config, output_layer=Softmax, **kwargs)
         self.classes = theano.shared(numpy.array(config.tgtcls, dtype=theano.config.floatX), name='classes')
 
     @application(outputs=['destination'])

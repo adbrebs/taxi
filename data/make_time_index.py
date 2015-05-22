@@ -39,7 +39,7 @@ def make_valid(outpath):
         c.executemany('INSERT INTO trip_times(trip, begin, end) VALUES(?, ?, ?)', times)
         timedb.commit()
         print "Creating index..."
-        c.execute('''CREATE INDEX trip_time_index ON trip_times (begin, end)''')
+        c.execute('''CREATE INDEX trip_begin_index ON trip_times (begin)''')
 
 
 if __name__ == '__main__':
