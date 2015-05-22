@@ -57,3 +57,4 @@ batch_size = 200
 
 valid_set = 'cuts/test_times_0'
 
+max_splits = 100

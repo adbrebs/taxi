@@ -33,6 +33,10 @@ mlp_biases_init = Constant(0.001)
 
 learning_rate = 0.0001
 momentum = 0.99
-batch_size = 32
+batch_size = 100
+
+use_cuts_for_training = True
+max_splits = 1
 
 valid_set = 'cuts/test_times_0'
+
