@@ -20,8 +20,8 @@ for i in range(21):
     time_tgtcls.append(time_tgtcls[-1] + time_tgtcls[-2])
 
 dim_embeddings = [
-    ('origin_call', data.origin_call_size+1, 15),
-    ('origin_stand', data.stands_size+1, 10),
+    ('origin_call', data.origin_call_size, 15),
+    ('origin_stand', data.stands_size, 10),
     ('week_of_year', 52, 10),
     ('day_of_week', 7, 10),
     ('qhour_of_day', 24 * 4, 10),
