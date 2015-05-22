@@ -11,8 +11,10 @@ class Model(FFMLP):
 
     @application(outputs=['duration'])
     def predict(self, **kwargs):
-        outputs = super(Model, self).predict(**kwargs)
-        return kwargs['input_time'] + self.config.exp_base ** outputs
+        outputs = super(Model, self).predict(**kwargs).flatten()
+        if hasattr(self.config, 'exp_base'):
+            outputs = self.config.exp_base ** outputs
+        return kwargs['input_time'] + outputs
 
     @predict.property('inputs')
     def predict_inputs(self):
@@ -22,7 +24,7 @@ class Model(FFMLP):
     def cost(self, **kwargs):
         y_hat = self.predict(**kwargs)
         y = kwargs['travel_time']
-        return error.rmsle(y_hat.flatten(), y.flatten())
+        return error.rmsle(y_hat, y)
 
     @cost.property('inputs')
     def cost_inputs(self):
