@@ -56,7 +56,7 @@ class Stream(object):
 
         stream = TaxiDataset('train')
 
-        if hasattr(self.config, 'use_cuts_for_trainig') and self.config.use_cuts_for_training:
+        if hasattr(self.config, 'use_cuts_for_training') and self.config.use_cuts_for_training:
             stream = DataStream(stream, iteration_scheme=TaxiTimeCutScheme())
         else:
             stream = DataStream(stream, iteration_scheme=ShuffledExampleScheme(stream.num_examples))
