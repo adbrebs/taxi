@@ -6,8 +6,6 @@ from model.time_simple_mlp import Model, Stream
 
 n_begin_end_pts = 5     # how many points we consider at the beginning and end of the known trajectory
 
-n_valid = 1000
-
 dim_embeddings = [
     ('origin_call', data.origin_call_train_size, 10),
     ('origin_stand', data.stands_size, 10),
