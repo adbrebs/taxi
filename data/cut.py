@@ -28,6 +28,7 @@ class TaxiTimeCutScheme(IterationScheme):
                     c.execute('SELECT trip FROM trip_times WHERE begin >= ? AND begin <= ? AND end >= ?',
                                 (cut - 40000, cut, cut))]
                 l = l + part
+        random.shuffle(l)
                 
         return iter_(l)
 

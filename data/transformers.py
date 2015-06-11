@@ -119,3 +119,13 @@ class TaxiExcludeTrips(Transformer):
             if not data[self.id_trip_id] in self.exclude: break
         return data
 
+class TaxiRemoveTestOnlyClients(Transformer):
+    def __init__(self, stream):
+        super(TaxiRemoveTestOnlyClients, self).__init__(stream)
+        self.id_origin_call = stream.sources.index('origin_call')
+    def get_data(self, request=None):
+        if request is not None: raise ValueError
+        x = list(next(self.child_epoch_iterator))
+        if x[self.id_origin_call] >= data.origin_call_train_size:
+            x[self.id_origin_call] = numpy.int32(0)
+        return tuple(x)

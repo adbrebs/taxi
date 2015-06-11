@@ -70,6 +70,8 @@ class Stream(object):
         
         stream = Batch(stream, iteration_scheme=ConstantScheme(self.config.batch_size))
 
+        stream = MultiProcessing(stream)
+
         return stream
 
     def valid(self, req_vars):
@@ -85,6 +87,7 @@ class Stream(object):
         
         stream = transformers.TaxiAddDateTime(stream)
         stream = transformers.TaxiAddFirstLastLen(self.config.n_begin_end_pts, stream)
+        stream = transformers.TaxiRemoveTestOnlyClients(stream)
 
         return Batch(stream, iteration_scheme=ConstantScheme(1))
 
