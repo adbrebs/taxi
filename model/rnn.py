@@ -93,8 +93,8 @@ class Model(Initializable):
     def predict_inputs(self):
         return self.inputs
 
-    @application(outputs=['cost'])
-    def cost(self, latitude, longitude, latitude_mask, **kwargs):
+    @application(outputs=['cost_matrix'])
+    def cost_matrix(self, latitude, longitude, latitude_mask, **kwargs):
         latitude = latitude.T
         longitude = longitude.T
         latitude_mask = latitude_mask.T
@@ -106,11 +106,28 @@ class Model(Initializable):
                 axis=2)
         target = target.repeat(latitude.shape[0], axis=0)
         ce = error.erdist(target.reshape((-1, 2)), res.reshape((-1, 2)))
-        ce *= latitude_mask.flatten()
-        return ce.sum() / latitude_mask.sum()
+        ce = ce.reshape(latitude.shape)
+        return ce * latitude_mask
+
+    @cost_matrix.property('inputs')
+    def cost_matrix_inputs(self):
+        return self.inputs + ['destination_latitude', 'destination_longitude']
+
+    @application(outputs=['cost'])
+    def cost(self, latitude_mask, **kwargs):
+        return self.cost_matrix(latitude_mask=latitude_mask, **kwargs).sum() / latitude_mask.sum()
 
     @cost.property('inputs')
     def cost_inputs(self):
+        return self.inputs + ['destination_latitude', 'destination_longitude']
+
+    @application(outputs=['cost'])
+    def valid_cost(self, **kwargs):
+        # Only works when batch_size is 1.
+        return self.cost_matrix(**kwargs)[-1,0]
+
+    @valid_cost.property('inputs')
+    def valid_cost_inputs(self):
         return self.inputs + ['destination_latitude', 'destination_longitude']
 
 
@@ -141,7 +158,7 @@ class Stream(object):
         stream = transformers.add_destination(stream)
         stream = transformers.Select(stream, tuple(v for v in req_vars if not v.endswith('_mask')))
 
-        stream = Batch(stream, iteration_scheme=ConstantScheme(1000))
+        stream = Batch(stream, iteration_scheme=ConstantScheme(1))
         stream = Padding(stream, mask_sources=['latitude', 'longitude'])
         stream = transformers.Select(stream, req_vars)
         return stream
