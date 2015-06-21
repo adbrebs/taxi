@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 
+import cPickle
 import importlib
 import logging
 import operator
