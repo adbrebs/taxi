@@ -52,7 +52,7 @@ class Model(Initializable):
         candidate_inputs = tensor.concatenate(candidate_extremities + candidate_embeddings, axis=1)
         candidate_representation = self.candidate_encoder.apply(candidate_inputs)
 
-        similarity_score = tensor.dot(prefix_representation, candidate_representation)
+        similarity_score = tensor.dot(prefix_representation, candidate_representation.T)
         similarity = self.softmax.apply(similarity_score)
 
         candidate_destination = tensor.concatenate(
