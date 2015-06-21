@@ -13,7 +13,7 @@ class TaxiDataset(H5PYDataset):
     def __init__(self, which_set, filename='data.hdf5', **kwargs):
         self.filename = filename
         kwargs.setdefault('load_in_memory', True)
-        super(TaxiDataset, self).__init__(self.data_path, which_set, **kwargs)
+        super(TaxiDataset, self).__init__(self.data_path, (which_set,), **kwargs)
 
     @property
     def data_path(self):
