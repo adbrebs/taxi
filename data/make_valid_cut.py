@@ -57,6 +57,7 @@ def make_valid(cutfile, outpath):
         splits[slen+i]['source'] = field.encode('utf8')
         splits[slen+i]['start'] = clen
         splits[slen+i]['stop'] = alen
+        splits[slen+i]['indices'] = None
         splits[slen+i]['available'] = True
         splits[slen+i]['comment'] = '.'
     file.attrs['split'] = splits

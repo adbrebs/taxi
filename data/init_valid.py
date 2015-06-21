@@ -38,15 +38,17 @@ def init_valid(path):
         ('source', 'a', 21),
         ('start', numpy.int64, 1),
         ('stop', numpy.int64, 1),
+        ('indices', h5py.special_dtype(ref=h5py.Reference)),
         ('available', numpy.bool, 1),
         ('comment', 'a', 1)]))
 
     split_array[:]['split'] = 'dummy'.encode('utf8')
     for (i, k) in enumerate(_fields.keys()):
-        split_array[i] = k.encode('utf8')
+        split_array[i]['source'] = k.encode('utf8')
     split_array[:]['start'] = 0
     split_array[:]['stop'] = 0
     split_array[:]['available'] = False
+    split_array[:]['indices'] = None
     split_array[:]['comment'] = '.'.encode('utf8')
     h5file.attrs['split'] = split_array
 
