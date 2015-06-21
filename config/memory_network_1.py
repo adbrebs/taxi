@@ -26,7 +26,7 @@ prefix_encoder.weights_init = IsotropicGaussian(0.01)
 prefix_encoder.biases_init = Constant(0.001)
 
 candidate_encoder = MLPConfig()
-candidate_encoder.dim_input = n_begin_end_pts * 2 + sum(x for (_, _, x) in dim_embeddings)
+candidate_encoder.dim_input = n_begin_end_pts * 2 * 2 + sum(x for (_, _, x) in dim_embeddings)
 candidate_encoder.dim_hidden = [50]
 candidate_encoder.weights_init = IsotropicGaussian(0.01)
 candidate_encoder.biases_init = Constant(0.001)
