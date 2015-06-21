@@ -94,7 +94,7 @@ class TaxiGenerateSplits(Transformer):
 
 
 class _taxi_add_first_last_len_helper(object):
-    def __init__(self, k, latitude, longitude):
+    def __init__(self, k, id_latitude, id_longitude):
         self.k = k
         self.id_latitude = id_latitude
         self.id_longitude = id_longitude

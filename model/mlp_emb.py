@@ -3,8 +3,9 @@ from theano import tensor
 from fuel.transformers import Batch, MultiProcessing
 from fuel.streams import DataStream
 from fuel.schemes import ConstantScheme, ShuffledExampleScheme
-from blocks.bricks import application, MLP, Rectifier, Initializable
+from blocks.bricks import application, MLP, Rectifier, Initializable, Identity
 
+import error
 import data
 from data import transformers
 from data.hdf5 import TaxiDataset, TaxiStream
@@ -12,39 +13,50 @@ from data.cut import TaxiTimeCutScheme
 from model import ContextEmbedder
 
 
-class FFMLP(Initializable):
-    def __init__(self, config, output_layer=None, **kwargs):
-        super(FFMLP, self).__init__(**kwargs)
+class Model(Initializable):
+    def __init__(self, config, **kwargs):
+        super(Model, self).__init__(**kwargs)
         self.config = config
 
         self.context_embedder = ContextEmbedder(config)
+        self.mlp = MLP(activations=[Rectifier() for _ in config.dim_hidden] + [Identity()],
+                       dims=[config.dim_input] + config.dim_hidden + [config.dim_output])
 
-        output_activation = [] if output_layer is None else [output_layer()]
-        output_dim = [] if output_layer is None else [config.dim_output]
-        self.mlp = MLP(activations=[Rectifier() for _ in config.dim_hidden] + output_activation,
-                       dims=[config.dim_input] + config.dim_hidden + output_dim)
-
-        self.extremities = {'%s_k_%s' % (side, ['latitude', 'longitude'][axis]): axis for side in ['first', 'last'] for axis in [0, 1]}
-        self.inputs = self.context_embedder.inputs + self.extremities.keys()
+        self.inputs = self.context_embedder.inputs # + self.extremities.keys()
         self.children = [ self.context_embedder, self.mlp ]
 
     def _push_initialization_config(self):
         self.mlp.weights_init = self.config.mlp_weights_init
         self.mlp.biases_init = self.config.mlp_biases_init
 
-    @application(outputs=['prediction'])
+    @application(outputs=['destination'])
     def predict(self, **kwargs):
         embeddings = tuple(self.context_embedder.apply(**{k: kwargs[k] for k in self.context_embedder.inputs }))
-        extremities = tuple((kwargs[k] - data.train_gps_mean[v]) / data.train_gps_std[v] for k, v in self.extremities.items())
 
-        inputs = tensor.concatenate(extremities + embeddings, axis=1)
+        inputs = tensor.concatenate(embeddings, axis=1)
         outputs = self.mlp.apply(inputs)
 
-        return outputs
+        if self.config.output_mode == "destination":
+            return data.train_gps_std * outputs + data.train_gps_mean
+        elif self.config.dim_output == "clusters":
+            return tensor.dot(outputs, self.classes)
 
     @predict.property('inputs')
     def predict_inputs(self):
         return self.inputs
+
+    @application(outputs=['cost'])
+    def cost(self, **kwargs):
+        y_hat = self.predict(**kwargs)
+        y = tensor.concatenate((kwargs['destination_latitude'][:, None],
+                                kwargs['destination_longitude'][:, None]), axis=1)
+
+        return error.erdist(y_hat, y).mean()
+
+    @cost.property('inputs')
+    def cost_inputs(self):
+        return self.inputs + ['destination_latitude', 'destination_longitude']
+
 
 class Stream(object):
     def __init__(self, config):
@@ -63,10 +75,9 @@ class Stream(object):
 
         stream = transformers.TaxiExcludeTrips(stream, valid_trips_ids)
         stream = transformers.TaxiGenerateSplits(stream, max_splits=self.config.max_splits)
-        stream = transformers.add_destination(stream)
 
         stream = transformers.taxi_add_datetime(stream)
-        stream = transformers.taxi_add_first_last_len(stream, self.config.n_begin_end_pts)
+        # stream = transformers.taxi_add_first_last_len(stream, self.config.n_begin_end_pts)
         stream = transformers.Select(stream, tuple(req_vars))
         
         stream = Batch(stream, iteration_scheme=ConstantScheme(self.config.batch_size))
@@ -79,7 +90,7 @@ class Stream(object):
         stream = TaxiStream(self.config.valid_set, 'valid.hdf5')
 
         stream = transformers.taxi_add_datetime(stream)
-        stream = transformers.taxi_add_first_last_len(stream, self.config.n_begin_end_pts)
+        # stream = transformers.taxi_add_first_last_len(stream, self.config.n_begin_end_pts)
         stream = transformers.Select(stream, tuple(req_vars))
         return Batch(stream, iteration_scheme=ConstantScheme(1000))
 
@@ -87,7 +98,7 @@ class Stream(object):
         stream = TaxiStream('test')
         
         stream = transformers.taxi_add_datetime(stream)
-        stream = transformers.taxi_add_first_last_len(stream, self.config.n_begin_end_pts)
+        # stream = transformers.taxi_add_first_last_len(stream, self.config.n_begin_end_pts)
         stream = transformers.taxi_remove_test_only_clients(stream)
 
         return Batch(stream, iteration_scheme=ConstantScheme(1))
