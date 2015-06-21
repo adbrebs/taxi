@@ -5,7 +5,6 @@ import numpy
 
 
 path = os.environ.get('TAXI_PATH', '/data/lisatmp3/auvolat/taxikaggle')
-path = os.environ.get('TAXI_PATH', '/Users/adeb/data/taxi')
 
 Polyline = h5py.special_dtype(vlen=numpy.float32)
 
