@@ -16,7 +16,7 @@ from blocks.extensions import Printing, FinishAfter, SimpleExtension
 from blocks.extensions.monitoring import DataStreamMonitoring, TrainingDataMonitoring
 
 try:
-    from blocks.extensions.plot import Plot
+    from blocks.extras.extensions.plotting import Plot
     use_plot = True
 except ImportError:
     use_plot = False
