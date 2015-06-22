@@ -88,7 +88,7 @@ class Stream(object):
 
         dataset = TaxiDataset('train')
 
-        prefix_stream = DataStream(dataset, iteration_scheme=TaxiTimeCutScheme())
+        prefix_stream = DataStream(dataset, iteration_scheme=TaxiTimeCutScheme(self.config.num_cuts))
         prefix_stream = transformers.TaxiExcludeTrips(prefix_stream, valid_trips_ids)
         prefix_stream = transformers.TaxiGenerateSplits(prefix_stream, max_splits=self.config.max_splits)
         prefix_stream = transformers.taxi_add_datetime(prefix_stream)

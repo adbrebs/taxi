@@ -21,13 +21,13 @@ class MLPConfig(object):
 
 prefix_encoder = MLPConfig()
 prefix_encoder.dim_input = n_begin_end_pts * 2 * 2 + sum(x for (_, _, x) in dim_embeddings)
-prefix_encoder.dim_hidden = [50]
+prefix_encoder.dim_hidden = [100, 100, 100]
 prefix_encoder.weights_init = IsotropicGaussian(0.01)
 prefix_encoder.biases_init = Constant(0.001)
 
 candidate_encoder = MLPConfig()
 candidate_encoder.dim_input = n_begin_end_pts * 2 * 2 + sum(x for (_, _, x) in dim_embeddings)
-candidate_encoder.dim_hidden = [50]
+candidate_encoder.dim_hidden = [100, 100, 100]
 candidate_encoder.weights_init = IsotropicGaussian(0.01)
 candidate_encoder.biases_init = Constant(0.001)
 
@@ -38,6 +38,7 @@ batch_size = 32
 
 valid_set = 'cuts/test_times_0'
 max_splits = 1
+num_cuts = 1000
 
 train_candidate_size = 1000
 valid_candidate_size = 10000
