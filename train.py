@@ -153,7 +153,7 @@ if __name__ == "__main__":
                 Printing(every_n_batches=1000),
 
                 SaveLoadParams(dump_path, cg,
-                               before_training=True,        # before training -> load params
+                               before_training=config.load_model,        # before training -> load params
                                every_n_batches=1000,        # every N batches -> save params
                                ),
                 ]

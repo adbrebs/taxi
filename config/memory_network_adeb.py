@@ -44,3 +44,5 @@ num_cuts = 1000
 
 train_candidate_size = 1000
 valid_candidate_size = 10000
+
+load_model = False
