@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
+import cPickle
 import sys
 import os
 import importlib
 import csv
 
-from blocks.dump import load_parameter_values
 from blocks.model import Model
 
 
@@ -24,7 +24,8 @@ if __name__ == "__main__":
     test_stream = stream.test(req_vars_test)
 
     model = Model(model_config.predict(**inputs))
-    parameters = load_parameter_values(os.path.join('model_data', model_name, 'params.npz'))
+    with open(os.path.join('model_data', "{}.pkl".format(model_name))) as f:
+        parameters = cPickle.load(f)
     model.set_param_values(parameters)
 
     if 'destination' in outputs:

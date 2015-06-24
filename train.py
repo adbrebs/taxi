@@ -11,7 +11,7 @@ from functools import reduce
 from theano import tensor
 
 from blocks import roles
-from blocks.algorithms import AdaDelta, CompositeRule, GradientDescent, RemoveNotFinite, StepRule
+from blocks.algorithms import AdaDelta, CompositeRule, GradientDescent, RemoveNotFinite, StepRule, Momentum
 from blocks.extensions import Printing, FinishAfter, SimpleExtension
 from blocks.extensions.monitoring import DataStreamMonitoring, TrainingDataMonitoring
 
@@ -136,8 +136,7 @@ if __name__ == "__main__":
         cost=cost,
         step_rule=CompositeRule([
                 ElementwiseRemoveNotFinite(),
-                AdaDelta(),
-                #Momentum(learning_rate=config.learning_rate, momentum=config.momentum),
+                config.step_rule,
             ]),
         params=params)
     
