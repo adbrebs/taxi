@@ -132,12 +132,17 @@ if __name__ == "__main__":
         parameters_size += reduce(operator.mul, value.get_value().shape, 1)
     logger.info('Total number of parameters: %d in %d matrices' % (parameters_size, len(cg.get_params())))
 
+    if hasattr(config, 'step_rule'):
+        step_rule = config.step_rule
+    else:
+        step_rule = AdaDelta()
+
     params = cg.parameters
     algorithm = GradientDescent(
         cost=cost,
         step_rule=CompositeRule([
                 ElementwiseRemoveNotFinite(),
-                config.step_rule,
+                step_rule
             ]),
         params=params)
     

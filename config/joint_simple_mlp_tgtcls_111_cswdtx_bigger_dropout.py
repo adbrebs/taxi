@@ -2,6 +2,9 @@ import os
 import cPickle
 
 from blocks.initialization import IsotropicGaussian, Constant
+from blocks.bricks import Rectifier, Tanh, Logistic
+from blocks.filter import VariableFilter
+from blocks import roles
 
 import data
 from model.joint_simple_mlp_tgtcls import Model, Stream
@@ -46,8 +49,8 @@ embed_weights_init = IsotropicGaussian(0.01)
 mlp_weights_init = IsotropicGaussian(0.1)
 mlp_biases_init = Constant(0.01)
 
-apply_dropout = True
-dropout_p = 0.5
+dropout = 0.5
+dropout_inputs = VariableFilter(bricks=[Rectifier], name='output')
 
 # use adadelta, so no learning_rate or momentum
 batch_size = 200
