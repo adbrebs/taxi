@@ -1,19 +1,12 @@
 from blocks.initialization import IsotropicGaussian, Constant
 
 import data
-from model.dest_simple_mlp import Model, Stream
+from model.dest_mlp import Model, Stream
 
 
 n_begin_end_pts = 5     # how many points we consider at the beginning and end of the known trajectory
 
-dim_embeddings = [
-    ('origin_call', data.origin_call_train_size, 10),
-    ('origin_stand', data.stands_size, 10),
-    ('week_of_year', 52, 10),
-    ('day_of_week', 7, 10),
-    ('qhour_of_day', 24 * 4, 10),
-    ('day_type', 3, 10),
-]
+dim_embeddings = []   # do not use embeddings
 
 dim_input = n_begin_end_pts * 2 * 2 + sum(x for (_, _, x) in dim_embeddings)
 dim_hidden = [200, 100]

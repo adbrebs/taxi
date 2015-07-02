@@ -4,7 +4,7 @@ import cPickle
 from blocks.initialization import IsotropicGaussian, Constant
 
 import data
-from model.dest_simple_mlp_tgtcls import Model, Stream
+from model.dest_mlp_tgtcls import Model, Stream
 
 
 n_begin_end_pts = 5     # how many points we consider at the beginning and end of the known trajectory

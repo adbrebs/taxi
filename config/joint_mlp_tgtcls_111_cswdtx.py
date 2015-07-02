@@ -4,7 +4,7 @@ import cPickle
 from blocks.initialization import IsotropicGaussian, Constant
 
 import data
-from model.joint_simple_mlp_tgtcls import Model, Stream
+from model.joint_mlp_tgtcls import Model, Stream
 
 
 n_begin_end_pts = 5     # how many points we consider at the beginning and end of the known trajectory
@@ -32,11 +32,11 @@ dim_input = n_begin_end_pts * 2 * 2 + sum(x for (_, _, x) in dim_embeddings)
 dim_hidden = [500]
 
 # Destination prediction part
-dim_hidden_dest = []
+dim_hidden_dest = [100]
 dim_output_dest = len(dest_tgtcls)
 
 # Time prediction part
-dim_hidden_time = []
+dim_hidden_time = [100]
 dim_output_time = len(time_tgtcls)
 
 # Cost ratio between distance cost and time cost

@@ -2,15 +2,12 @@ import os
 import cPickle
 
 from blocks.initialization import IsotropicGaussian, Constant
-from blocks.bricks import Rectifier, Tanh, Logistic
-from blocks.filter import VariableFilter
-from blocks import roles
 
 import data
-from model.joint_simple_mlp_tgtcls import Model, Stream
+from model.joint_mlp_tgtcls import Model, Stream
 
 
-n_begin_end_pts = 10     # how many points we consider at the beginning and end of the known trajectory
+n_begin_end_pts = 7     # how many points we consider at the beginning and end of the known trajectory
 
 with open(os.path.join(data.path, 'arrival-clusters.pkl')) as f:
     dest_tgtcls = cPickle.load(f)
@@ -35,11 +32,11 @@ dim_input = n_begin_end_pts * 2 * 2 + sum(x for (_, _, x) in dim_embeddings)
 dim_hidden = [5000]
 
 # Destination prediction part
-dim_hidden_dest = [1000]
+dim_hidden_dest = []
 dim_output_dest = dest_tgtcls.shape[0]
 
 # Time prediction part
-dim_hidden_time = [500]
+dim_hidden_time = []
 dim_output_time = len(time_tgtcls)
 
 # Cost ratio between distance cost and time cost
@@ -49,12 +46,9 @@ embed_weights_init = IsotropicGaussian(0.01)
 mlp_weights_init = IsotropicGaussian(0.1)
 mlp_biases_init = Constant(0.01)
 
-dropout = 0.5
-dropout_inputs = VariableFilter(bricks=[Rectifier], name='output')
-
-# use adadelta, so no learning_rate or momentum
+learning_rate = 0.0001
+momentum = 0.99
 batch_size = 200
 
 valid_set = 'cuts/test_times_0'
-
 max_splits = 100

@@ -1,13 +1,10 @@
 import os
 import cPickle
 
-from blocks import roles
-from blocks.bricks import Rectifier
-from blocks.filter import VariableFilter
 from blocks.initialization import IsotropicGaussian, Constant
 
 import data
-from model.joint_simple_mlp_tgtcls import Model, Stream
+from model.joint_mlp_tgtcls import Model, Stream
 
 
 n_begin_end_pts = 5     # how many points we consider at the beginning and end of the known trajectory
@@ -35,11 +32,11 @@ dim_input = n_begin_end_pts * 2 * 2 + sum(x for (_, _, x) in dim_embeddings)
 dim_hidden = [500]
 
 # Destination prediction part
-dim_hidden_dest = [100]
+dim_hidden_dest = []
 dim_output_dest = len(dest_tgtcls)
 
 # Time prediction part
-dim_hidden_time = [100]
+dim_hidden_time = []
 dim_output_time = len(time_tgtcls)
 
 # Cost ratio between distance cost and time cost
@@ -49,13 +46,9 @@ embed_weights_init = IsotropicGaussian(0.001)
 mlp_weights_init = IsotropicGaussian(0.01)
 mlp_biases_init = Constant(0.001)
 
+learning_rate = 0.0001
+momentum = 0.99
 batch_size = 200
-
-dropout = 0.5
-dropout_inputs = VariableFilter(bricks=[Rectifier], name='output')
-
-noise = 0.01
-noise_inputs = VariableFilter(roles=[roles.PARAMETER])
 
 valid_set = 'cuts/test_times_0'
 max_splits = 100

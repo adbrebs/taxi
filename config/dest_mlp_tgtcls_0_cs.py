@@ -1,16 +1,24 @@
+import os
+import cPickle
+
 from blocks.initialization import IsotropicGaussian, Constant
 
 import data
-from model.dest_simple_mlp import Model, Stream
+from model.dest_mlp_tgtcls import Model, Stream
 
 
 n_begin_end_pts = 5     # how many points we consider at the beginning and end of the known trajectory
 
-dim_embeddings = []   # do not use embeddings
+with open(os.path.join(data.path, 'arrival-clusters.pkl')) as f: tgtcls = cPickle.load(f)
+
+dim_embeddings = [
+    ('origin_call', data.origin_call_train_size, 10),
+    ('origin_stand', data.stands_size, 10)
+]
 
 dim_input = n_begin_end_pts * 2 * 2 + sum(x for (_, _, x) in dim_embeddings)
-dim_hidden = [200, 100]
-dim_output = 2
+dim_hidden = []
+dim_output = tgtcls.shape[0]
 
 embed_weights_init = IsotropicGaussian(0.001)
 mlp_weights_init = IsotropicGaussian(0.01)
