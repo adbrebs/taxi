@@ -29,14 +29,14 @@ dim_embeddings = [
 
 # Common network part
 dim_input = n_begin_end_pts * 2 * 2 + sum(x for (_, _, x) in dim_embeddings)
-dim_hidden = [1000]
+dim_hidden = [5000]
 
 # Destination prediction part
-dim_hidden_dest = [400]
+dim_hidden_dest = [1000]
 dim_output_dest = dest_tgtcls.shape[0]
 
 # Time prediction part
-dim_hidden_time = [400]
+dim_hidden_time = [500]
 dim_output_time = len(time_tgtcls)
 
 # Cost ratio between distance cost and time cost
@@ -46,8 +46,7 @@ embed_weights_init = IsotropicGaussian(0.01)
 mlp_weights_init = IsotropicGaussian(0.1)
 mlp_biases_init = Constant(0.01)
 
-learning_rate = 0.000001
-momentum = 0.99
+# use adadelta, so no learning_rate or momentum
 batch_size = 200
 
 valid_set = 'cuts/test_times_0'

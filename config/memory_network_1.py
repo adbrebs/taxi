@@ -31,6 +31,7 @@ candidate_encoder.dim_hidden = [100, 100, 100]
 candidate_encoder.weights_init = IsotropicGaussian(0.01)
 candidate_encoder.biases_init = Constant(0.001)
 
+normalize_representation = True
 
 embed_weights_init = IsotropicGaussian(0.001)
 

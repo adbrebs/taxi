@@ -46,11 +46,10 @@ embed_weights_init = IsotropicGaussian(0.01)
 mlp_weights_init = IsotropicGaussian(0.1)
 mlp_biases_init = Constant(0.01)
 
-# apply_dropout = True
-# dropout_p = 0.5
+apply_dropout = True
+dropout_p = 0.5
 
-learning_rate = 0.001
-momentum = 0.9
+# use adadelta, so no learning_rate or momentum
 batch_size = 200
 
 valid_set = 'cuts/test_times_0'
