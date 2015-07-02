@@ -14,6 +14,8 @@ from blocks import roles
 from blocks.algorithms import AdaDelta, CompositeRule, GradientDescent, RemoveNotFinite, StepRule, Momentum
 from blocks.extensions import Printing, FinishAfter, SimpleExtension
 from blocks.extensions.monitoring import DataStreamMonitoring, TrainingDataMonitoring
+import blocks
+blocks.config.default_seed = 123
 
 try:
     from blocks.extras.extensions.plotting import Plot
