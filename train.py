@@ -87,6 +87,9 @@ if __name__ == "__main__":
     else:
         step_rule = AdaDelta()
 
+    logger.info("Fuel seed: %d" % fuel.config.default_seed)
+    logger.info("Blocks seed: %d" % blocks.config.default_seed)
+
     params = cg.parameters
     algorithm = GradientDescent(
         cost=cost,
@@ -107,13 +110,14 @@ if __name__ == "__main__":
                                      prefix='valid',
                                      every_n_batches=1000),
                 Printing(every_n_batches=1000),
+                # FinishAfter(every_n_batches=10),
 
-                # SaveLoadParams(dump_path, cg,
-                #                before_training=True,        # before training -> load params
-                #                every_n_batches=1000,        # every N batches -> save params
-                #                after_epoch=True,            # after epoch -> save params
-                #                after_training=True,         # after training -> save params
-                #                ),
+                SaveLoadParams(dump_path, cg,
+                               before_training=True,        # before training -> load params
+                               every_n_batches=1000,        # every N batches -> save params
+                               after_epoch=True,            # after epoch -> save params
+                               after_training=True,         # after training -> save params
+                               ),
 
                 RunOnTest(model_name,
                           model,

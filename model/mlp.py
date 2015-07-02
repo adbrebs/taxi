@@ -1,5 +1,8 @@
 from theano import tensor
 
+import fuel
+import blocks
+
 from fuel.transformers import Batch, MultiProcessing
 from fuel.streams import DataStream
 from fuel.schemes import ConstantScheme, ShuffledExampleScheme
@@ -11,6 +14,8 @@ from data.hdf5 import TaxiDataset, TaxiStream
 from data.cut import TaxiTimeCutScheme
 from model import ContextEmbedder
 
+blocks.config.default_seed = 123
+fuel.config.default_seed = 123
 
 class FFMLP(Initializable):
     def __init__(self, config, output_layer=None, **kwargs):

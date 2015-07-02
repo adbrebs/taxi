@@ -10,6 +10,7 @@ from fuel.transformers import Batch, Mapping, SortMapping, Transformer, Unpack
 
 import data
 
+fuel.config.default_seed = 123
 
 def at_least_k(k, v, pad_at_begin, is_longitude):
     if len(v) == 0:
