@@ -23,7 +23,7 @@ dim_embeddings = [
 ]
 
 dim_input = n_begin_end_pts * 2 * 2 + sum(x for (_, _, x) in dim_embeddings)
-dim_hidden = [500]
+dim_hidden = [100, 100]
 dim_output = tgtcls.shape[0]
 
 embed_weights_init = IsotropicGaussian(0.01)
