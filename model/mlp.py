@@ -1,9 +1,10 @@
 from theano import tensor
+import numpy
 
 import fuel
 import blocks
 
-from fuel.transformers import Batch, MultiProcessing
+from fuel.transformers import Batch, MultiProcessing, Mapping, SortMapping, Unpack
 from fuel.streams import DataStream
 from fuel.schemes import ConstantScheme, ShuffledExampleScheme
 from blocks.bricks import application, MLP, Rectifier, Initializable
@@ -73,6 +74,12 @@ class Stream(object):
         stream = transformers.taxi_add_datetime(stream)
         stream = transformers.taxi_add_first_last_len(stream, self.config.n_begin_end_pts)
         stream = transformers.Select(stream, tuple(req_vars))
+
+        if hasattr(self.config, 'shuffle_batch_size'):
+            stream = transformers.Batch(stream, iteration_scheme=ConstantScheme(self.config.shuffle_batch_size))
+            rng = numpy.random.RandomState(123)
+            stream = Mapping(stream, SortMapping(lambda x: float(rng.uniform())))
+            stream = Unpack(stream)
         
         stream = Batch(stream, iteration_scheme=ConstantScheme(self.config.batch_size))
 
