@@ -1,5 +1,9 @@
 .idea/*
 
+# Source archive
+submission.tgz
+*.pdf
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -58,8 +62,9 @@ docs/_build/
 # PyBuilder
 target/
 
-# Vim tmpfiles
+# Vim & other tmpfiles
 *.swp
+*~
 
 # Random datafiles
 *.csv
