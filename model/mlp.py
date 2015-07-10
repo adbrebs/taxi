@@ -52,6 +52,12 @@ class FFMLP(Initializable):
     def predict_inputs(self):
         return self.inputs
 
+class UniformGenerator(object):
+    def __init__(self):
+        self.rng = numpy.random.RandomState(123)
+    def __call__(self, *args):
+        return float(self.rng.uniform())
+
 class Stream(object):
     def __init__(self, config):
         self.config = config
@@ -69,17 +75,15 @@ class Stream(object):
 
         stream = transformers.TaxiExcludeTrips(stream, valid_trips_ids)
         stream = transformers.TaxiGenerateSplits(stream, max_splits=self.config.max_splits)
-        stream = transformers.add_destination(stream)
+
+        if hasattr(self.config, 'shuffle_batch_size'):
+            stream = transformers.Batch(stream, iteration_scheme=ConstantScheme(self.config.shuffle_batch_size))
+            stream = Mapping(stream, SortMapping(key=UniformGenerator()))
+            stream = Unpack(stream)
 
         stream = transformers.taxi_add_datetime(stream)
         stream = transformers.taxi_add_first_last_len(stream, self.config.n_begin_end_pts)
         stream = transformers.Select(stream, tuple(req_vars))
-
-        if hasattr(self.config, 'shuffle_batch_size'):
-            stream = transformers.Batch(stream, iteration_scheme=ConstantScheme(self.config.shuffle_batch_size))
-            rng = numpy.random.RandomState(123)
-            stream = Mapping(stream, SortMapping(lambda x: float(rng.uniform())))
-            stream = Unpack(stream)
         
         stream = Batch(stream, iteration_scheme=ConstantScheme(self.config.batch_size))
 

@@ -23,14 +23,14 @@ dim_embeddings = [
 ]
 
 dim_input = n_begin_end_pts * 2 * 2 + sum(x for (_, _, x) in dim_embeddings)
-dim_hidden = [1000]
+dim_hidden = [500]
 dim_output = tgtcls.shape[0]
 
 embed_weights_init = IsotropicGaussian(0.01)
 mlp_weights_init = IsotropicGaussian(0.1) 
 mlp_biases_init = Constant(0.01)
 
-step_rule = Momentum(learning_rate=0.01, momentum=0.9)
+step_rule = Momentum(learning_rate=0.001, momentum=0.99)
 
 batch_size = 200
 
