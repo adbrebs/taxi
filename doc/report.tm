@@ -9,28 +9,27 @@
   </author-affiliation>>>>
 
   <center|<tabular*|<tformat|<table|<row|<cell|<name|Alex
-  Auvolat>>|<cell|<name|Alexandre De Brébisson>>|<cell|<name|Étienne
+  Auvolat>>|<cell|<name|Alexandre de Brébisson>>|<cell|<name|Étienne
   Simon>>>|<row|<cell|ENS Paris>|<cell|Université de Montréal>|<cell|ENS
   Cachan>>|<row|<cell|France>|<cell|Québec,
   Canada>|<cell|France>>|<row|<cell|<verbatim|alexis211@gmail.com>>|<cell|<verbatim|<strong|adbrebs@gmail.com>>>|<cell|<verbatim|esimon@esimon.eu>>>>>>>
 
   <section|Summary>
 
-  Our model is based on a multi-layer perceptron (MLP), a simple feed-forward
-  neural network architecture. Our MLP model is trained by stochastic
-  gradient descent (SGD) on the training trajectories. The inputs to our MLP
-  are the 5 first and 5 last positions of the known part of the trajectory,
-  as well as embeddings for the context information (date, client and taxi
-  identification). \ The embeddings are trained with SGD jointly with the MLP
-  parameters. The MLP outputs probabilities for 3392 target points, and a
-  mean is calculated to get a unique destination point as an output. We did
-  no ensembling and used no external data.
+  Our model is based on a multi-layer perceptron (MLP). Our MLP model is
+  trained by stochastic gradient descent (SGD) on the training trajectories.
+  The inputs of our MLP are the 5 first and 5 last positions of the known
+  part of the trajectory, as well as embeddings for the context information
+  (date, client and taxi identification). \ The embeddings are trained with
+  SGD jointly with the MLP parameters. The MLP outputs probabilities for 3392
+  target points, and a mean is calculated to get a unique destination point
+  as an output. We did no ensembling and did not use any external data.
 
   <section|Feature Selection/Extraction>
 
   We used a mean-shift algorithm on the destination points of all the
   training trajectories to extract 3392 classes for the destination point.
-  These classes were used as a fixed output layer for the MLP architecture.
+  These classes were used as a fixed softmax layer in the MLP architecture.
 
   We used the embedding method which is common in neural language modeling
   approaches (see [1]) to take the metainformation into account in our model.
@@ -73,8 +72,7 @@
 
     <item><strong|Hidden layer.> We use a single hidden layer MLP. The hidden
     layer is of size 500, and the activation function is a Rectifier Linear
-    Unit (ie <math|f<around*|(|x|)>=max<around*|(|0,x|)>>). See [2] for more
-    information about ReLUs.
+    Unit (ie <math|f<around*|(|x|)>=max<around*|(|0,x|)>>) [2].
 
     <item><strong|Output layer.> The output layer predicts a probability
     vector for the 3392 output classes that we obtained with our clustering
@@ -88,18 +86,22 @@
 
     Since <math|\<b-p\>> sums to one, this is a valid point on the map.
 
-    <item><strong|Cost.> We directly train using an approximation of the mean
-    Haversine Distance as a cost.
+    <item><strong|Cost.> We directly train using an approximation
+    (Equirectangular projection) of the mean Haversine Distance as a cost.
 
     <item><strong|SGD and optimization.> We used a minibatch size of 200. The
-    optimization algorithm is simple SGD with a learning rate of 0.01 and a
-    momentum of 0.9.
+    optimization algorithm is simple SGD with a fixed learning rate of 0.01
+    and a momentum of 0.9.
 
     <item><strong|Validation.> To generate our validation set, we tried to
     create a set that looked like the training set. For that we generated
     ``cuts'' from the training set, i.e. extracted all the taxi rides that
     were occuring at given times. The times we selected for our validation
-    set are similar to those of the test set, only one year before.
+    set are similar to those of the test set, only one year before:
+
+    <code|1376503200, # 2013-08-14 18:00<next-line>1380616200, # 2013-10-01
+    08:30<next-line>1381167900, # 2013-10-07 17:45<next-line>1383364800, #
+    2013-11-02 04:00<next-line>1387722600 \ # 2013-12-22 14:30>
   </itemize>
 
   <section|Code Description>
@@ -170,18 +172,17 @@
     testing
   </itemize>
 
-  In the archive we have included only the files listed above, which are
-  strictly necessary for reproducing our results. More files for the other
-  models we have tried are available on GitHub at
-  <hlink|https://github.com/adbrebs/taxi|><hlink||https://github.com/adbrebs/taxi>.
+  In the archive we have included only the files listed above, which are the
+  strict minimum to reproduce our results. More files for the other models we
+  tried are available on GitHub at <hlink|https://github.com/adbrebs/taxi|><hlink||https://github.com/adbrebs/taxi>.
 
   <section|Dependencies>
 
   We used the following packages developped at the MILA lab:
 
   <\itemize>
-    <item><strong|Thano.> A general GPU-accelerated python math library, with
-    an interface similar to numpy (see [3, 4]).
+    <item><strong|Theano.> A general GPU-accelerated python math library,
+    with an interface similar to numpy (see [3, 4]).
     <hlink|http://deeplearning.net/software/theano/|>
 
     <item><strong|Blocks.> A deep-learning and neural network framework for
@@ -215,7 +216,7 @@
     arrival point clustering. This can take a few minutes.
 
     <item>Create a folder <verbatim|model_data> and a folder
-    <verbatim|output> (next to the training script), which will recieve
+    <verbatim|output> (next to the training script), which will receive
     respectively a regular save of the model parameters and many submission
     files generated from the model at a regular interval.
 
@@ -224,16 +225,16 @@
     every 1000 iterations. Interrupt the model with three consecutive Ctrl+C
     at any times. The training script is set to stop training after 10 000
     000 iterations, but a result file produced after less than 2 000 000
-    iterations is already the winning solution. The training is quite long
-    though: we trained our model on a GeForce GTX 680 card and it took about
-    an afternoon to generate the winning solution.
+    iterations is already the winning solution. We trained our model on a
+    GeForce GTX 680 card and it took about an afternoon to generate the
+    winning solution.
 
     When running the training script, set the following Theano flags
     environment variable to exploit GPU parallelism:
 
     <verbatim|THEANO_FLAGS=floatX=float32,device=gpu,optimizer=FAST_RUN>
 
-    Theano is only compatible with CUDA, which requires an Nvidia GPUs.
+    Theano is only compatible with CUDA, which requires an Nvidia GPU.
     Training on the CPU is also possible but much slower.
   </enumerate>
 
@@ -296,15 +297,18 @@
 <\references>
   <\collection>
     <associate|auto-1|<tuple|1|1>>
-    <associate|auto-10|<tuple|8|?>>
+    <associate|auto-10|<tuple|5|?>>
     <associate|auto-2|<tuple|2|1>>
     <associate|auto-3|<tuple|1|1>>
-    <associate|auto-4|<tuple|3|2>>
+    <associate|auto-4|<tuple|3|1>>
     <associate|auto-5|<tuple|4|2>>
     <associate|auto-6|<tuple|5|3>>
     <associate|auto-7|<tuple|6|3>>
     <associate|auto-8|<tuple|7|4>>
     <associate|auto-9|<tuple|8|4>>
+    <associate|firstHeading|<tuple|1|?>>
+    <associate|footnote-1|<tuple|1|?>>
+    <associate|footnr-1|<tuple|1|?>>
     <associate|gs_cit0|<tuple|4|4>>
   </collection>
 </references>
