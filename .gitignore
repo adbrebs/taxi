@@ -2,7 +2,7 @@
 
 # Source archive
 submission.tgz
-*.pdf
+#*.pdf
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
