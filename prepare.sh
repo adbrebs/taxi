@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 RESET=`tput sgr0`
 BOLD="`tput bold`"
@@ -54,7 +54,7 @@ md5_check(){
         echo "${RED} no md5 utility"
 		return
 	fi
-    md5=`$md5cmd "$TAXI_PATH/$1" | sed -e 's/ .*//'`
+    md5=`$md5cmd "$TAXI_PATH/$1" | sed -e 's/^.* //'`
     if [ $md5 = $2 ]; then
         echo "$GREEN$md5 ok"
     else
@@ -85,7 +85,8 @@ md5_check test.csv f2ceffde9d98e3c49046c7d998308e71
 zipextract metaData_taxistandsID_name_GPSlocation.csv.zip
 
 echo -n "${YELLOW}patching error in metadata csv... $RESET"
-sed -e 's/41,Nevogilde,41.163066654-8.67598304213/41,Nevogilde,41.163066654,-8.67598304213/' -i "$TAXI_PATH/metaData_taxistandsID_name_GPSlocation.csv"
+cat "$TAXI_PATH/metaData_taxistandsID_name_GPSlocation.csv" | sed -e 's/41,Nevogilde,41.163066654-8.67598304213/41,Nevogilde,41.163066654,-8.67598304213/' > "$TAXI_PATH/metaData_taxistandsID_name_GPSlocation.csv.tmp"
+mv "$TAXI_PATH/metaData_taxistandsID_name_GPSlocation.csv.tmp" "$TAXI_PATH/metaData_taxistandsID_name_GPSlocation.csv"
 echo "${GREEN}ok"
 
 md5_check metaData_taxistandsID_name_GPSlocation.csv 724805b0b1385eb3efc02e8bdfe9c1df
