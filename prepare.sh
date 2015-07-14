@@ -12,7 +12,7 @@ export PYTHONPATH="$PWD:$PYTHONPATH"
 echo "${YELLOW}This script will prepare the data."
 echo "${YELLOW}You should run it from inside the repository."
 echo "${YELLOW}You should set the TAXI_PATH variable to where the data downloaded from kaggle is."
-echo "${YELLOW}Three data files are needed: ${BOLD}train.csv${YELLOW}, ${BOLD}test.csv${YELLOW} and ${BOLD}metaData_taxistandsID_name_GPSlocation.csv.zip${YELLOW}. They can be found at the following url: ${BOLD}https://www.kaggle.com/c/pkdd-15-predict-taxi-service-trajectory-i/data"
+echo "${YELLOW}Three data files are needed: ${BOLD}train.csv.zip${YELLOW}, ${BOLD}test.csv.zip${YELLOW} and ${BOLD}metaData_taxistandsID_name_GPSlocation.csv.zip${YELLOW}. They can be found at the following url: ${BOLD}https://www.kaggle.com/c/pkdd-15-predict-taxi-service-trajectory-i/data"
 if [ ! -e train.py ]; then
     echo "${RED}train.py not found, you are not inside the taxi repository."
     exit 1
@@ -46,7 +46,15 @@ md5_check(){
         echo "${RED}file not found, are you sure you set the TAXI_PATH variable correctly?"
         exit 1
     fi
-    md5=`md5sum "$TAXI_PATH/$1" | sed -e 's/ .*//'`
+	if command -v md5 >/dev/null 2>&1; then
+		md5cmd=md5
+	elif command -v md5sum >/dev/null 2>&1; then
+		md5cmd=md5sum
+	else
+        echo "${RED} no md5 utility"
+		return
+	fi
+    md5=`$md5cmd "$TAXI_PATH/$1" | sed -e 's/ .*//'`
     if [ $md5 = $2 ]; then
         echo "$GREEN$md5 ok"
     else
@@ -55,16 +63,26 @@ md5_check(){
     fi
 }
 
-md5_check train.csv 68cc499ac4937a3079ebf69e69e73971
-md5_check test.csv f2ceffde9d98e3c49046c7d998308e71
+md5_check train.csv.zip 87a1b75adfde321dc163160b495964e8
+md5_check test.csv.zip 47133bf7349cb80cc668fa56af8ce743
 md5_check metaData_taxistandsID_name_GPSlocation.csv.zip fecec7286191af868ce8fb208f5c7643
 
 
-echo -e "\n$BLUE# Extracting metadata"
+echo -e "\n$BLUE# Extracting data"
 
-echo -n "${YELLOW}unziping... $RESET"
-unzip -o "$TAXI_PATH/metaData_taxistandsID_name_GPSlocation.csv.zip" -d "$TAXI_PATH"
-echo "${GREEN}ok"
+zipextract(){
+	echo -n "${YELLOW}unziping $1... $RESET"
+	unzip -o "$TAXI_PATH/$1" -d "$TAXI_PATH"
+	echo "${GREEN}ok"
+}
+
+zipextract train.csv.zip
+md5_check train.csv 68cc499ac4937a3079ebf69e69e73971
+
+zipextract test.csv.zip
+md5_check test.csv f2ceffde9d98e3c49046c7d998308e71
+
+zipextract metaData_taxistandsID_name_GPSlocation.csv.zip
 
 echo -n "${YELLOW}patching error in metadata csv... $RESET"
 sed -e 's/41,Nevogilde,41.163066654-8.67598304213/41,Nevogilde,41.163066654,-8.67598304213/' -i "$TAXI_PATH/metaData_taxistandsID_name_GPSlocation.csv"
