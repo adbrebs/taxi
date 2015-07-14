@@ -38,10 +38,12 @@ Here is a brief description of the Python files in the archive:
 * `train.py` contains the main code for the training and testing
   
 ## How to reproduce the winning results?
+
+There is an helper script `prepare.sh` which might helps you (by performing step 1-6 and some other checks), but if you encounter an error, the script will re-execute all the steps from the beginning (before the actual training, step 2, 4 and 5 are quite long).
   
 1. Set the `TAXI_PATH` environment variable to the path of the folder containing the CSV files.
-2. Run `data/csv_to_hdf5.py` to generate the HDF5 file (which is generated in `TAXI_PATH`, along the CSV files). This takes around 20 minutes on our machines.
-3. Run `data/init_valid.py` to initialize the validation set HDF5 file.
+2. Run `data/csv_to_hdf5.py "$TAXI_PATH" "$TAXI_PATH/data.hdf5"` to generate the HDF5 file (which is generated in `TAXI_PATH`, along the CSV files). This takes around 20 minutes on our machines.
+3. Run `data/init_valid.py valid.hdf5` to initialize the validation set HDF5 file.
 4. Run `data/make_valid_cut.py test_times_0` to generate the validation set. This can take a few minutes.
 5. Run `data_analysis/cluster_arrival.py` to generate the arrival point clustering. This can take a few minutes.
 6. Create a folder `model_data` and a folder `output` (next to the training script), which will receive respectively a regular save of the model parameters and many submission files generated from the model at a regular interval.
