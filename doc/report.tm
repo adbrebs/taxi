@@ -104,6 +104,9 @@
     2013-11-02 04:00<next-line>1387722600 \ # 2013-12-22 14:30>
   </itemize>
 
+  <big-figure|<image|winning_model.png|577px|276px||>|Illustration of the
+  winning model.>
+
   <section|Code Description>
 
   Here is a brief description of the Python files in the archive:
@@ -297,15 +300,15 @@
 <\references>
   <\collection>
     <associate|auto-1|<tuple|1|1>>
-    <associate|auto-10|<tuple|5|?>>
+    <associate|auto-10|<tuple|8|?>>
     <associate|auto-2|<tuple|2|1>>
     <associate|auto-3|<tuple|1|1>>
     <associate|auto-4|<tuple|3|1>>
-    <associate|auto-5|<tuple|4|2>>
-    <associate|auto-6|<tuple|5|3>>
-    <associate|auto-7|<tuple|6|3>>
-    <associate|auto-8|<tuple|7|4>>
-    <associate|auto-9|<tuple|8|4>>
+    <associate|auto-5|<tuple|1|2>>
+    <associate|auto-6|<tuple|4|3>>
+    <associate|auto-7|<tuple|5|3>>
+    <associate|auto-8|<tuple|6|4>>
+    <associate|auto-9|<tuple|7|4>>
     <associate|firstHeading|<tuple|1|?>>
     <associate|footnote-1|<tuple|1|?>>
     <associate|footnr-1|<tuple|1|?>>
