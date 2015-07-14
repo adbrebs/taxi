@@ -14,7 +14,7 @@ fuel.config.default_seed = 123
 
 def at_least_k(k, v, pad_at_begin, is_longitude):
     if len(v) == 0:
-        v = numpy.array([data.porto_center[1 if is_longitude else 0]], dtype=theano.config.floatX)
+        v = numpy.array([data.train_gps_mean[1 if is_longitude else 0]], dtype=theano.config.floatX)
     if len(v) < k:
         if pad_at_begin:
             v = numpy.concatenate((numpy.full((k - len(v),), v[0]), v))
