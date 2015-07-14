@@ -47,14 +47,13 @@ md5_check(){
         exit 1
     fi
 	if command -v md5 >/dev/null 2>&1; then
-		md5cmd=md5
+		md5=`md5 "$TAXI_PATH/$1" | sed -e 's/^.* //'`
 	elif command -v md5sum >/dev/null 2>&1; then
-		md5cmd=md5sum
+		md5=`md5sum "$TAXI_PATH/$1" | sed -e 's/^.* //'`
 	else
         echo "${RED} no md5 utility"
 		return
 	fi
-    md5=`$md5cmd "$TAXI_PATH/$1" | sed -e 's/^.* //'`
     if [ $md5 = $2 ]; then
         echo "$GREEN$md5 ok"
     else
