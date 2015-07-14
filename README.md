@@ -39,7 +39,7 @@ Here is a brief description of the Python files in the archive:
   
 ## How to reproduce the winning results?
 
-There is an helper script `prepare.sh` which might helps you (by performing step 1-6 and some other checks), but if you encounter an error, the script will re-execute all the steps from the beginning (before the actual training, step 2, 4 and 5 are quite long).
+There is an helper script `prepare.sh` which might helps you (by performing steps 1-6 and some other checks), but if you encounter an error, the script will re-execute all the steps from the beginning (before the actual training, steps 2, 4 and 5 are quite long).
 
 Note that some script expect the repository to be in your PYTHONPATH (go to the root of the repository and type `export PYTHONPATH="$PWD:$PYTHONPATH"`).
   
