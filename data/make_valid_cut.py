@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # Make a valid dataset by cutting the training set at specified timestamps
 
 import os

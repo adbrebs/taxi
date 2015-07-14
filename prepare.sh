@@ -23,7 +23,7 @@ echo -e "\n$BLUE# Checking dependencies"
 
 python_import(){
     echo -n "${YELLOW}$1... $RESET"
-    if ! python -c "import $1; print '${GREEN}version', $1.__version__, '${YELLOW}(we used version $2)'"; then
+    if ! python2 -c "import $1; print '${GREEN}version', $1.__version__, '${YELLOW}(we used version $2)'"; then
         echo "${RED}failed, $1 is not installed"
         exit 1
     fi
