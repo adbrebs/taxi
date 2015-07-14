@@ -24,6 +24,8 @@ def at_least_k(k, v, pad_at_begin, is_longitude):
 
 
 class Select(Transformer):
+    produces_examples = True
+
     def __init__(self, data_stream, sources):
         super(Select, self).__init__(data_stream)
         self.ids = [data_stream.sources.index(source) for source in sources]
@@ -36,6 +38,8 @@ class Select(Transformer):
         return [data[id] for id in self.ids]
 
 class TaxiExcludeTrips(Transformer):
+    produces_examples = True
+
     def __init__(self, stream, exclude_list):
         super(TaxiExcludeTrips, self).__init__(stream)
         self.id_trip_id = stream.sources.index('trip_id')
@@ -48,6 +52,8 @@ class TaxiExcludeTrips(Transformer):
         return data
 
 class TaxiExcludeEmptyTrips(Transformer):
+    produces_examples = True
+
     def __init__(self, stream):
         super(TaxiExcludeEmptyTrips, self).__init__(stream)
         self.latitude = stream.sources.index('latitude')
@@ -59,8 +65,11 @@ class TaxiExcludeEmptyTrips(Transformer):
         return data
         
 class TaxiGenerateSplits(Transformer):
+    produces_examples = True
+
     def __init__(self, data_stream, max_splits=-1):
         super(TaxiGenerateSplits, self).__init__(data_stream)
+
         self.sources = data_stream.sources + ('destination_latitude', 'destination_longitude', 'travel_time')
         self.max_splits = max_splits
         self.data = None
