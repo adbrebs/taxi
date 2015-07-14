@@ -94,25 +94,25 @@ md5_check metaData_taxistandsID_name_GPSlocation.csv 724805b0b1385eb3efc02e8bdfe
 
 echo -e "\n$BLUE# Conversion of training set to HDF5"
 echo "${YELLOW}This might take some time$RESET"
-data/csv_to_hdf5.py "$TAXI_PATH" "$TAXI_PATH/data.hdf5"
+python2 data/csv_to_hdf5.py "$TAXI_PATH" "$TAXI_PATH/data.hdf5"
 
 
 echo -e "\n$BLUE# Generation of validation set"
 echo "${YELLOW}This might take some time$RESET"
 
 echo -n "${YELLOW}initialization... $RESET"
-data/init_valid.py
+python2 data/init_valid.py
 echo "${GREEN}ok"
 
 echo -n "${YELLOW}cutting... $RESET"
-data/make_valid_cut.py test_times_0
+python2 data/make_valid_cut.py test_times_0
 echo "${GREEN}ok"
 
 
 echo -e "\n$BLUE# Generation of destination cluster"
 echo "${YELLOW}This might take some time$RESET"
 echo -n "${YELLOW}generating... $RESET"
-data_analysis/cluster_arrival.py
+python2 data_analysis/cluster_arrival.py
 echo "${GREEN}ok"
 
 
@@ -122,4 +122,4 @@ echo -n "${YELLOW}mkdir output... $RESET"; mkdir output; echo "${GREEN}ok"
 
 echo -e "\n$GREEN${BOLD}The data was successfully prepared"
 echo "${YELLOW}To train the winning model on gpu, you can now run the following command:"
-echo "${YELLOW}THEANO_FLAGS=floatX=float32,device=gpu,optimizer=FAST_RUN ./train.py dest_mlp_tgtcls_1_cswdtx_alexandre"
+echo "${YELLOW}THEANO_FLAGS=floatX=float32,device=gpu,optimizer=FAST_RUN python2 train.py dest_mlp_tgtcls_1_cswdtx_alexandre"
