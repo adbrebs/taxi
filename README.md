@@ -51,6 +51,6 @@ Note that some script expect the repository to be in your PYTHONPATH (go to the 
 6. Create a folder `model_data` and a folder `output` (next to the training script), which will receive respectively a regular save of the model parameters and many submission files generated from the model at a regular interval.
 7. Run `./train.py dest_mlp_tgtcls_1_cswdtx_alexandre` to train the model. Output solutions are generated in `output/` every 1000 iterations. Interrupt the model with three consecutive Ctrl+C at any times. The training script is set to stop training after 10 000 000 iterations, but a result file produced after less than 2 000 000 iterations is already the winning solution. We trained our model on a GeForce GTX 680 card and it took about an afternoon to generate the winning solution.
    When running the training script, set the following Theano flags environment variable to exploit GPU parallelism:
-   `THEANO_FLAGS=floatX=float32,device=gpu,optimizer=FAST_RUN`
+   `THEANO_FLAGS=floatX=float32,device=gpu,optimizer=fast_run`
 
 *More information in this pdf: https://github.com/adbrebs/taxi/blob/master/doc/short_report.pdf*
