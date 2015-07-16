@@ -1,13 +1,17 @@
 import cPickle
-import scipy
 import numpy as np
 import matplotlib.pyplot as plt
 
+from fuel.schemes import ConstantScheme
+from fuel.streams import DataStream
+
 import data
+from data.hdf5 import TaxiDataset, TaxiStream
 
 
 def compute_number_coordinates():
-    train_it = data.train_it()
+    stream = TaxiDataset('train').get_example_stream()
+    train_it = stream.get_epoch_iterator()
 
     # Count the number of coordinates
     n_coordinates = 0
@@ -24,16 +28,20 @@ def extract_coordinates(n_coordinates=None):
     if n_coordinates is None:
         n_coordinates = compute_number_coordinates()
 
+    dataset = TaxiDataset('train')
+    stream = DataStream(dataset, iteration_scheme=ConstantScheme(1, dataset.num_examples))
+
     coordinates = np.zeros((n_coordinates, 2), dtype="float32")
-    train_it = data.train_it()
+    train_it = stream.get_epoch_iterator()
 
     c = 0
     for ride in train_it:
-        for point in ride[-1]:
+        for point in zip(ride[2], ride[3]):
             coordinates[c] = point
             c += 1
+    print c
 
-    cPickle.dump(coordinates, open(data.DATA_PATH + "/coordinates_array.pkl", "wb"))
+    cPickle.dump(coordinates, open(data.path + "/coordinates_array.pkl", "wb"))
 
 
 def draw_map(coordinates, xrg, yrg):
@@ -47,9 +55,9 @@ def draw_map(coordinates, xrg, yrg):
 
 
 if __name__ == "__main__":
-    # extract_coordinates(n_coordinates=83360928)
+    extract_coordinates(n_coordinates=32502730)
 
-    coordinates = cPickle.load(open(data.DATA_PATH + "/coordinates_array.pkl", "rb"))
+    coordinates = cPickle.load(open(data.path + "/coordinates_array.pkl", "rb"))
     xrg = [-8.75, -8.55]
     yrg = [41.05, 41.25]
     draw_map(coordinates, xrg, yrg)
