@@ -17,6 +17,8 @@ _fields = ['trip_id', 'call_type', 'origin_call', 'origin_stand', 'taxi_id', 'ti
 def make_valid(cutfile, outpath):
     cuts = importlib.import_module('.%s' % cutfile, 'data.cuts').cuts
 
+    print "Number of cuts:", len(cuts)
+
     valid = []
 
     for line in taxi_it('train'):
@@ -39,6 +41,9 @@ def make_valid(cutfile, outpath):
                     'travel_time': 15 * (len(latitude)-1)
                 })
                 valid.append(line)
+                break
+
+    print "Number of trips in validation set:", len(valid)
     
     file = h5py.File(outpath, 'a')
     clen = file['trip_id'].shape[0]
