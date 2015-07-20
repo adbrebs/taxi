@@ -121,4 +121,4 @@ echo -n "${YELLOW}mkdir output... $RESET"; mkdir output; echo "${GREEN}ok"
 
 echo -e "\n$GREEN${BOLD}The data was successfully prepared"
 echo "${YELLOW}To train the winning model on gpu, you can now run the following command:"
-echo "${YELLOW}THEANO_FLAGS=floatX=float32,device=gpu,optimizer=FAST_RUN python2 train.py dest_mlp_tgtcls_1_cswdtx_alexandre"
+echo "${YELLOW}THEANO_FLAGS=floatX=float32,device=gpu,optimizer=fast_run python2 train.py dest_mlp_tgtcls_1_cswdtx_alexandre"

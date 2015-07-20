@@ -1,18 +1,17 @@
 import cPickle
-import scipy
 import numpy as np
 import matplotlib.pyplot as plt
 
 import data
+from data.hdf5 import taxi_it
 
 
 def compute_number_coordinates():
-    train_it = data.train_it()
 
     # Count the number of coordinates
     n_coordinates = 0
-    for ride in train_it:
-        n_coordinates += len(ride[-1])
+    for ride in taxi_it('train'):
+        n_coordinates += len(ride['latitude'])
     print n_coordinates
 
     return n_coordinates
@@ -25,15 +24,16 @@ def extract_coordinates(n_coordinates=None):
         n_coordinates = compute_number_coordinates()
 
     coordinates = np.zeros((n_coordinates, 2), dtype="float32")
-    train_it = data.train_it()
 
     c = 0
-    for ride in train_it:
-        for point in ride[-1]:
+    for ride in taxi_it('train'):
+        for point in zip(ride['latitude'], ride['longitude']):
             coordinates[c] = point
             c += 1
 
-    cPickle.dump(coordinates, open(data.DATA_PATH + "/coordinates_array.pkl", "wb"))
+    print c
+
+    cPickle.dump(coordinates, open(data.path + "/coordinates_array.pkl", "wb"))
 
 
 def draw_map(coordinates, xrg, yrg):
@@ -43,13 +43,14 @@ def draw_map(coordinates, xrg, yrg):
     hist, xx, yy = np.histogram2d(coordinates[:, 0], coordinates[:, 1], bins=2000, range=[xrg, yrg])
 
     plt.imshow(np.log(hist))
-    plt.savefig(data.DATA_PATH + "/analysis/xyhmap2.png")
+    plt.gca().invert_yaxis()
+    plt.savefig(data.path + "/analysis/xyhmap2.png")
 
 
 if __name__ == "__main__":
-    # extract_coordinates(n_coordinates=83360928)
+    extract_coordinates(n_coordinates=83409386)
 
-    coordinates = cPickle.load(open(data.DATA_PATH + "/coordinates_array.pkl", "rb"))
-    xrg = [-8.75, -8.55]
-    yrg = [41.05, 41.25]
+    coordinates = cPickle.load(open(data.path + "/coordinates_array.pkl", "rb"))
+    xrg = [41.05, 41.25]
+    yrg = [-8.75, -8.55]
     draw_map(coordinates, xrg, yrg)
