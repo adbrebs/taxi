@@ -29,12 +29,21 @@ class RunOnTest(SimpleExtension):
         iter_no = repr(self.main_loop.log.status['iterations_done'])
         if 'valid_destination_cost' in self.main_loop.log.current_row:
             dvc = self.main_loop.log.current_row['valid_destination_cost']
-        else:
+        elif 'valid_model_cost_cost' in self.main_loop.log.current_row:
             dvc = self.main_loop.log.current_row['valid_model_cost_cost']
+        elif 'valid_model_valid_cost_cost' in self.main_loop.log.current_row:
+            dvc = self.main_loop.log.current_row['valid_model_valid_cost_cost']
+        else:
+            raise RuntimeError("Unknown model type")
+
         if 'valid_time_cost' in self.main_loop.log.current_row:
             tvc = self.main_loop.log.current_row['valid_time_cost']
-        else:
+        elif 'valid_model_cost_cost' in self.main_loop.log.current_row:
             tvc = self.main_loop.log.current_row['valid_model_cost_cost']
+        elif 'valid_model_valid_cost_cost' in self.main_loop.log.current_row:
+            tvc = self.main_loop.log.current_row['valid_model_valid_cost_cost']
+        else:
+            raise RuntimeError("Unknown model type")
 
         if 'destination' in self.outputs:
             dest_outname = 'test-dest-%s-it%s-cost%.3f.csv' % (self.model_name, iter_no, dvc)

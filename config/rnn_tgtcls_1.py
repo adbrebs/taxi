@@ -1,7 +1,10 @@
+import os
+import cPickle
+
 from blocks.initialization import IsotropicGaussian, Constant
 
 import data
-from model.rnn_direct import Model, Stream
+from model.rnn_tgtcls import Model, Stream
 
 class EmbedderConfig(object):
     __slots__ = ('dim_embeddings', 'embed_weights_init')
@@ -23,6 +26,7 @@ post_embedder.dim_embeddings = [
     ('origin_stand', data.stands_size, 10),
 ]
 
+with open(os.path.join(data.path, 'arrival-clusters.pkl')) as f: tgtcls = cPickle.load(f)
 
 hidden_state_dim = 100 
 weights_init = IsotropicGaussian(0.01)
