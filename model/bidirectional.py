@@ -121,8 +121,8 @@ class Stream(object):
 
         stream = transformers.balanced_batch(stream, key='latitude', batch_size=self.config.batch_size, batch_sort_size=self.config.batch_sort_size)
         stream = Padding(stream, mask_sources=['latitude', 'longitude'])
+        
         stream = transformers.Select(stream, req_vars)
-
         stream = MultiProcessing(stream)
 
         return stream
