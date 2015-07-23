@@ -31,6 +31,9 @@ native_fields = {
 all_fields = {
     'path_len': numpy.int16,
     'cluster': numpy.int16,
+    'destination_latitude': numpy.float32,
+    'destination_longitude': numpy.float32,
+    'travel_time': numpy.int32,
 }
 
 all_fields.update(native_fields)
@@ -124,6 +127,15 @@ def make_tvt(test_cuts_name, valid_cuts_name, outpath):
         else:
             i = train_i
             train_i += 1
+
+        trajlen = len(traindata['latitude'][idtraj])
+        if trajlen == 0:
+            hdata['destination_latitude'] = data.train_gps_mean[0]
+            hdata['destination_longitude'] =  data.train_gps_mean[1]
+        else:
+            hdata['destination_latitude'] = traindata['latitude'][idtraj][-1]
+            hdata['destination_longitude'] = traindata['longitude'][idtraj][-1]
+        hdata['travel_time'] = trajlen
 
         for field in native_fields:
             val = traindata[field][idtraj]
