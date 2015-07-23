@@ -59,9 +59,10 @@ class BidiRNN(Initializable):
         longitude = tensor.shape_padright(longitude)
         rec_in = tensor.concatenate((latitude, longitude), axis=2)
 
+        last_id = tensor.cast(latitude_mask.sum(axis=0) - 1, dtype='int64')
         path = self.rec.apply(self.fork.apply(rec_in), mask=latitude_mask)[0]
         path_representation = (path[0][:, -self.config.hidden_state_dim:],
-                path[-1][:, :self.config.hidden_state_dim])
+                path[last_id - 1, tensor.arange(latitude_mask.shape[1])][:, :self.config.hidden_state_dim])
 
         embeddings = tuple(self.context_embedder.apply(**{k: kwargs[k] for k in self.context_embedder.inputs }))
 
