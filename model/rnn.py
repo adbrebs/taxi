@@ -99,7 +99,7 @@ class RNN(Initializable):
         res = self.predict_all(**kwargs)[0]
 
         last_id = tensor.cast(kwargs['latitude_mask'].sum(axis=0) - 1, dtype='int64')
-        return res[last_id]
+        return res[last_id, tensor.arange(kwargs['latitude_mask'].shape[1])]
 
     @predict.property('inputs')
     def predict_inputs(self):
@@ -134,7 +134,7 @@ class RNN(Initializable):
     @application(outputs=['cost'])
     def valid_cost(self, **kwargs):
         last_id = tensor.cast(kwargs['latitude_mask'].sum(axis=1) - 1, dtype='int64')
-        return self.cost_matrix(**kwargs)[last_id].mean()
+        return self.cost_matrix(**kwargs)[last_id, tensor.arange(kwargs['latitude_mask'].shape[1])].mean()
 
     @valid_cost.property('inputs')
     def valid_cost_inputs(self):
