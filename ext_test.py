@@ -61,12 +61,13 @@ class RunOnTest(SimpleExtension):
         for d in self.test_stream.get_epoch_iterator(as_dict=True):
             input_values = [d[k.name] for k in self.inputs]
             output_values = self.function(*input_values)
-            if 'destination' in self.outputs:
-                destination = output_values[self.outputs.index('destination')]
-                dest_outcsv.writerow([d['trip_id'][0], destination[0, 0], destination[0, 1]])
-            if 'duration' in self.outputs:
-                duration = output_values[self.outputs.index('duration')]
-                time_outcsv.writerow([d['trip_id'][0], int(round(duration[0]))])
+            for i in range(d['trip_id'].shape[0]):
+                if 'destination' in self.outputs:
+                    destination = output_values[self.outputs.index('destination')]
+                    dest_outcsv.writerow([d['trip_id'][i], destination[i, 0], destination[i, 1]])
+                if 'duration' in self.outputs:
+                    duration = output_values[self.outputs.index('duration')]
+                    time_outcsv.writerow([d['trip_id'][i], int(round(duration[i]))])
 
         if 'destination' in self.outputs:
             dest_outfile.close()

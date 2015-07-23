@@ -106,7 +106,7 @@ class Stream(object):
         stream = transformers.taxi_add_first_last_len(stream, self.config.n_begin_end_pts)
         stream = transformers.taxi_remove_test_only_clients(stream)
 
-        return Batch(stream, iteration_scheme=ConstantScheme(1))
+        return Batch(stream, iteration_scheme=ConstantScheme(self.config.batch_size))
 
     def inputs(self):
         return {'call_type': tensor.bvector('call_type'),
