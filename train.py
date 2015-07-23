@@ -106,16 +106,16 @@ if __name__ == "__main__":
     dump_path = os.path.join('model_data', model_name) + '.pkl'
     logger.info('Dump path: %s' % dump_path)
 
-    extensions=[TrainingDataMonitoring(monitored, prefix='train', every_n_batches=1000),
+    extensions=[TrainingDataMonitoring(monitored, prefix='train', every_n_batches=10000),
                 DataStreamMonitoring(valid_monitored, valid_stream,
                                      prefix='valid',
-                                     every_n_batches=1000),
+                                     every_n_batches=10000),
                 Printing(every_n_batches=1000),
                 FinishAfter(every_n_batches=10000000),
 
                 SaveLoadParams(dump_path, cg,
                                before_training=True,        # before training -> load params
-                               every_n_batches=1000,        # every N batches -> save params
+                               every_n_batches=10000,       # every N batches -> save params
                                after_epoch=True,            # after epoch -> save params
                                after_training=True,         # after training -> save params
                                ),
@@ -123,7 +123,7 @@ if __name__ == "__main__":
                 RunOnTest(model_name,
                           model,
                           stream,
-                          every_n_batches=1000),
+                          every_n_batches=10000),
                 ]
     
     if use_plot:
