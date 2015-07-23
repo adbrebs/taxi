@@ -26,7 +26,7 @@ class RunOnTest(SimpleExtension):
         self.function = cg.get_theano_function()
 
     def do(self, which_callback, *args):
-        iter_no = repr(self.main_loop.log.status['iterations_done'])
+        iter_no = self.main_loop.log.status['iterations_done']
         if 'valid_destination_cost' in self.main_loop.log.current_row:
             dvc = self.main_loop.log.current_row['valid_destination_cost']
         elif 'valid_model_cost_cost' in self.main_loop.log.current_row:
@@ -46,13 +46,13 @@ class RunOnTest(SimpleExtension):
             raise RuntimeError("Unknown model type")
 
         if 'destination' in self.outputs:
-            dest_outname = 'test-dest-%s-it%s-cost%.3f.csv' % (self.model_name, iter_no, dvc)
+            dest_outname = 'test-dest-%s-it%09d-cost%.3f.csv' % (self.model_name, iter_no, dvc)
             dest_outfile = open(os.path.join('output', dest_outname), 'w')
             dest_outcsv = csv.writer(dest_outfile)
             dest_outcsv.writerow(["TRIP_ID", "LATITUDE", "LONGITUDE"])
             logger.info("Generating output for test set: %s" % dest_outname)
         if 'duration' in self.outputs:
-            time_outname = 'test-time-%s-it%s-cost%.3f.csv' % (self.model_name, iter_no, tvc)
+            time_outname = 'test-time-%s-it%09d-cost%.3f.csv' % (self.model_name, iter_no, tvc)
             time_outfile = open(os.path.join('output', time_outname), 'w')
             time_outcsv = csv.writer(time_outfile)
             time_outcsv.writerow(["TRIP_ID", "TRAVEL_TIME"])
