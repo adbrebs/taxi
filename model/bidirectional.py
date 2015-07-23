@@ -116,7 +116,6 @@ class Stream(object):
             stream = Unpack(stream)
 
         stream = transformers.taxi_add_datetime(stream)
-        stream = transformers.add_destination(stream)
         stream = transformers.Select(stream, tuple(v for v in req_vars if not v.endswith('_mask')))
 
         stream = transformers.balanced_batch(stream, key='latitude', batch_size=self.config.batch_size, batch_sort_size=self.config.batch_sort_size)
@@ -131,7 +130,6 @@ class Stream(object):
         stream = TaxiStream(self.config.valid_set, 'valid.hdf5')
 
         stream = transformers.taxi_add_datetime(stream)
-        stream = transformers.add_destination(stream)
         stream = transformers.Select(stream, tuple(v for v in req_vars if not v.endswith('_mask')))
 
         stream = Batch(stream, iteration_scheme=ConstantScheme(self.config.batch_size))
