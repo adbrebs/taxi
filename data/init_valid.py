@@ -30,7 +30,7 @@ _fields = {
 def init_valid(path):
     h5file = h5py.File(path, 'w')
     
-    for k, v in _fields.items():
+    for k, v in _fields.iteritems():
         h5file.create_dataset(k, (0,), dtype=v, maxshape=(None,))
 
     split_array = numpy.empty(len(_fields), dtype=numpy.dtype([
