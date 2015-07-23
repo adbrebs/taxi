@@ -103,6 +103,8 @@ def make_tvt(test_cuts_name, valid_cuts_name, outpath):
     parent = theano.tensor.argmin(hdist(clusters, coords))
     cluster = theano.function([latitude, longitude], parent)
 
+    train_clients = set()
+
     print >> sys.stderr, 'preparing hdf5 data'
     hdata = {k: numpy.empty(shape=(data.train_size,), dtype=v) for k, v in all_fields.iteritems()}
 
@@ -125,17 +127,18 @@ def make_tvt(test_cuts_name, valid_cuts_name, outpath):
             i = valid_i
             valid_i += 1
         else:
+            train_clients.add(traindata['origin_call'][idtraj])
             i = train_i
             train_i += 1
 
         trajlen = len(traindata['latitude'][idtraj])
         if trajlen == 0:
-            hdata['destination_latitude'] = data.train_gps_mean[0]
-            hdata['destination_longitude'] =  data.train_gps_mean[1]
+            hdata['destination_latitude'][i] = data.train_gps_mean[0]
+            hdata['destination_longitude'][i] = data.train_gps_mean[1]
         else:
-            hdata['destination_latitude'] = traindata['latitude'][idtraj][-1]
-            hdata['destination_longitude'] = traindata['longitude'][idtraj][-1]
-        hdata['travel_time'] = trajlen
+            hdata['destination_latitude'][i] = traindata['latitude'][idtraj][-1]
+            hdata['destination_longitude'][i] = traindata['longitude'][idtraj][-1]
+        hdata['travel_time'][i] = trajlen
 
         for field in native_fields:
             val = traindata[field][idtraj]
@@ -151,6 +154,11 @@ def make_tvt(test_cuts_name, valid_cuts_name, outpath):
         hdata['cluster'][i] = -1 if plen==0 else cluster(hdata['latitude'][i][0], hdata['longitude'][i][0])
 
     print >> sys.stderr, 'write: end'
+
+    print >> sys.stderr, 'removing useless origin_call'
+    for i in xrange(train_size, data.train_size):
+        if hdata['origin_call'][i] not in train_clients:
+            hdata['origin_call'][i] = 0
 
     print >> sys.stderr, 'preparing split array'
 
