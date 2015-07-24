@@ -110,7 +110,7 @@ if __name__ == "__main__":
                 DataStreamMonitoring(valid_monitored, valid_stream,
                                      prefix='valid',
                                      every_n_batches=10000),
-                Printing(every_n_batches=1000),
+                Printing(every_n_batches=10000),
                 FinishAfter(every_n_batches=10000000),
 
                 SaveLoadParams(dump_path, cg,

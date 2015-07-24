@@ -10,7 +10,7 @@ dim_embeddings = [
     ('week_of_year', 52, 10),
     ('day_of_week', 7, 10),
     ('qhour_of_day', 24 * 4, 10),
-    ('taxi_id', 448, 10),
+    ('taxi_id', data.taxi_id_size, 10),
 ]
 
 hidden_state_dim = 100
@@ -18,11 +18,8 @@ hidden_state_dim = 100
 dim_hidden = [500, 500]
 
 embed_weights_init = IsotropicGaussian(0.01)
-fork_weights_init = IsotropicGaussian(0.1) 
-fork_biases_init = Constant(0.01)
-rec_weights_init = IsotropicGaussian(0.1) 
-mlp_weights_init = IsotropicGaussian(0.1) 
-mlp_biases_init = Constant(0.01)
+weights_init = IsotropicGaussian(0.1) 
+biases_init = Constant(0.01)
 
 batch_size = 20
 batch_sort_size = 20
