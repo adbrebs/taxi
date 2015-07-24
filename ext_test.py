@@ -55,12 +55,14 @@ class RunOnTest(SimpleExtension):
             return
 
         if output_dvc:
+            self.best_dvc = dvc
             dest_outname = 'test-dest-%s-it%09d-cost%.3f.csv' % (self.model_name, iter_no, dvc)
             dest_outfile = open(os.path.join('output', dest_outname), 'w')
             dest_outcsv = csv.writer(dest_outfile)
             dest_outcsv.writerow(["TRIP_ID", "LATITUDE", "LONGITUDE"])
             logger.info("Generating output for test set: %s" % dest_outname)
         if output_tvc:
+            self.best_tvc = tvc
             time_outname = 'test-time-%s-it%09d-cost%.3f.csv' % (self.model_name, iter_no, tvc)
             time_outfile = open(os.path.join('output', time_outname), 'w')
             time_outcsv = csv.writer(time_outfile)
