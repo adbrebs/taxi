@@ -16,91 +16,56 @@ from model import ContextEmbedder
 from memory_network import StreamSimple as Stream
 from memory_network import MemoryNetworkBase
 
+class MLPEncoder(Initializable):
+    def __init__(self, config, output_dim, activation, **kwargs):
+        super(RecurrentEncoder, self).__init__(**kwargs)
 
-class Model(MemoryNetworkBase):
-    def __init__(self, **kwargs):
-        super(Model, self).__init__(**kwargs)
+        self.config = config
+        self.context_embedder = ContextEmbedder(self.config)
 
-        self.prefix_encoder = MLP(activations=[Rectifier() for _ in config.prefix_encoder.dim_hidden]
-                                              + [config.representation_activation()],
-                                  dims=[config.prefix_encoder.dim_input]
-                                       + config.prefix_encoder.dim_hidden
-                                       + [config.representation_size],
-                                  name='prefix_encoder')
+        self.encoder_mlp = MLP(activations=[Rectifier() for _ in config.prefix_encoder.dim_hidden]
+                                           + [config.representation_activation()],
+                               dims=[config.prefix_encoder.dim_input]
+                                    + config.prefix_encoder.dim_hidden
+                                    + [config.representation_size],
+                               name='prefix_encoder')
 
-        self.candidate_encoder = MLP(
-                    activations=[Rectifier() for _ in config.candidate_encoder.dim_hidden]
-                                + [config.representation_activation()],
-                    dims=[config.candidate_encoder.dim_input]
-                         + config.candidate_encoder.dim_hidden
-                         + [config.representation_size],
-                    name='candidate_encoder')
-        self.softmax = Softmax()
+        self.extremities = {'%s_k_%s' % (side, ['latitude', 'longitude'][axis]): axis 
+                             for side in ['first', 'last'] for axis in [0, 1]}
 
-        self.prefix_extremities = {'%s_k_%s' % (side, ['latitude', 'longitude'][axis]): axis 
-                                   for side in ['first', 'last'] for axis in [0, 1]}
-        self.candidate_extremities = {'candidate_%s_k_%s' % (side, axname): axis
-                                      for side in ['first', 'last']
-                                      for axis, axname in enumerate(['latitude', 'longitude'])}
-
-        self.inputs = self.context_embedder.inputs \
-                      + ['candidate_%s'%k for k in self.context_embedder.inputs] \
-                      + self.prefix_extremities.keys() + self.candidate_extremities.keys()
         self.children = [ self.context_embedder,
-                          self.prefix_encoder,
-                          self.candidate_encoder,
-                          self.softmax ]
+                          self.encoder_mlp ]
 
     def _push_initialization_config(self):
-        for (mlp, config) in [[self.prefix_encoder, self.config.prefix_encoder],
-                              [self.candidate_encoder, self.config.candidate_encoder]]:
-            mlp.weights_init = config.weights_init
-            mlp.biases_init = config.biases_init
+        for brick in [self.contex_encoder, self.encoder_mlp]:
+            brick.weights_init = self.config.weights_init
+            brick.biases_init = self.config.biases_init
 
-    @application(outputs=['destination'])
-    def predict(self, **kwargs):
-        prefix_embeddings = tuple(self.context_embedder.apply(
-                                **{k: kwargs[k] for k in self.context_embedder.inputs }))
-        prefix_extremities = tuple((kwargs[k] - data.train_gps_mean[v]) / data.train_gps_std[v]
-                                   for k, v in self.prefix_extremities.items())
-        prefix_inputs = tensor.concatenate(prefix_extremities + prefix_embeddings, axis=1)
-        prefix_representation = self.prefix_encoder.apply(prefix_inputs)
-        if self.config.normalize_representation:
-            prefix_representation = prefix_representation \
-                    / tensor.sqrt((prefix_representation ** 2).sum(axis=1, keepdims=True))
+    @application
+    def apply(self, **kwargs):
+        embeddings = tuple(self.context_embedder.apply(
+                           **{k: kwargs[k] for k in self.context_embedder.inputs }))
+        extremities = tuple((kwargs[k] - data.train_gps_mean[v]) / data.train_gps_std[v]
+                            for k, v in self.prefix_extremities.items())
+        inputs = tensor.concatenate(extremities + embeddings, axis=1)
 
-        candidate_embeddings = tuple(self.context_embedder.apply(**{k: kwargs['candidate_%s'%k]
-                                     for k in self.context_embedder.inputs }))
-        candidate_extremities = tuple((kwargs[k] - data.train_gps_mean[v]) / data.train_gps_std[v]
-                                      for k, v in self.candidate_extremities.items())
-        candidate_inputs = tensor.concatenate(candidate_extremities + candidate_embeddings, axis=1)
-        candidate_representation = self.candidate_encoder.apply(candidate_inputs)
-        if self.config.normalize_representation:
-            candidate_representation = candidate_representation \
-                    / tensor.sqrt((candidate_representation ** 2).sum(axis=1, keepdims=True))
+        return self.encoder_mlp.apply(inputs)
 
-        similarity_score = tensor.dot(prefix_representation, candidate_representation.T)
-        similarity = self.softmax.apply(similarity_score)
+    @apply.property('inputs')
+    def apply_inputs(self):
+        return self.context_embedder.inputs + self.extremities.keys()
 
-        candidate_destination = tensor.concatenate(
-                (tensor.shape_padright(kwargs['candidate_last_k_latitude'][:,-1]),
-                 tensor.shape_padright(kwargs['candidate_last_k_longitude'][:,-1])),
-                axis=1)
 
-        return tensor.dot(similarity, candidate_destination)
+class Model(MemoryNetworkBase):
+    def __init__(self, config, **kwargs):
+        prefix_encoder = MLPEncoder(config.prefix_encoder,
+                                    config.representation_size,
+                                    config.representation_activation())
 
-    @predict.property('inputs')
-    def predict_inputs(self):
-        return self.inputs
+        candidate_encoer = MLPEncoder(config.candidate_encoder,
+                                      config.representation_size,
+                                      config.representation_activation())
 
-    @application(outputs=['cost'])
-    def cost(self, **kwargs):
-        y_hat = self.predict(**kwargs)
-        y = tensor.concatenate((kwargs['destination_latitude'][:, None],
-                                kwargs['destination_longitude'][:, None]), axis=1)
+        super(Model, self).__init__(config, prefix_encoder, candidate_encoder, **kwargs)
 
-        return error.erdist(y_hat, y).mean()
 
-    @cost.property('inputs')
-    def cost_inputs(self):
-        return self.inputs + ['destination_latitude', 'destination_longitude']
