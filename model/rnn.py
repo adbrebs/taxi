@@ -155,6 +155,8 @@ class Stream(object):
 
         stream = transformers.TaxiExcludeEmptyTrips(stream)
         stream = transformers.taxi_add_datetime(stream)
+        if not data.tvt:
+            stream = transformers.add_destination(stream)
         stream = transformers.Select(stream, tuple(v for v in req_vars if not v.endswith('_mask')))
 
         stream = transformers.balanced_batch(stream, key='latitude', batch_size=self.config.batch_size, batch_sort_size=self.config.batch_sort_size)
