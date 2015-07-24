@@ -26,7 +26,7 @@ embed_weights_init = IsotropicGaussian(0.01)
 weights_init = IsotropicGaussian(0.1) 
 biases_init = Constant(0.01)
 
-batch_size = 20
+batch_size = 50
 batch_sort_size = 20
 
 max_splits = 100
