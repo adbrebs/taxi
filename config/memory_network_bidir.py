@@ -47,7 +47,6 @@ normalize_representation = True
 batch_size = 32
 batch_sort_size = 20
 
-valid_set = 'cuts/test_times_0'
 max_splits = 100
 num_cuts = 1000
 

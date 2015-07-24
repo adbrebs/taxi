@@ -37,10 +37,10 @@ from ext_test import RunOnTest
 logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print >> sys.stderr, 'Usage: %s config' % sys.argv[0]
+    if len(sys.argv) < 2 or len(sys.argv) > 3:
+        print >> sys.stderr, 'Usage: %s [--tvt | --largevalid] config' % sys.argv[0]
         sys.exit(1)
-    model_name = sys.argv[1]
+    model_name = sys.argv[-1]
     config = importlib.import_module('.%s' % model_name, 'config')
 
     logger.info('# Configuration: %s' % config.__name__)

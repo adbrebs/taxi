@@ -34,4 +34,3 @@ biases_init = Constant(0.001)
 
 batch_size = 10
 batch_sort_size = 10
-valid_set = 'cuts/test_times_0'

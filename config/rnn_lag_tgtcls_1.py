@@ -46,4 +46,3 @@ noise_inputs = VariableFilter(roles=[roles.PARAMETER])
 
 batch_size = 10
 batch_sort_size = 10
-valid_set = 'cuts/test_times_0'

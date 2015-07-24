@@ -27,5 +27,4 @@ learning_rate = 0.001
 momentum = 0.9
 batch_size = 100
 
-valid_set = 'cuts/test_times_0'
 max_splits = 100

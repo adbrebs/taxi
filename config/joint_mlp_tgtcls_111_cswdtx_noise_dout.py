@@ -57,5 +57,4 @@ dropout_inputs = VariableFilter(bricks=[Rectifier], name='output')
 noise = 0.01
 noise_inputs = VariableFilter(roles=[roles.PARAMETER])
 
-valid_set = 'cuts/test_times_0'
 max_splits = 100

@@ -49,6 +49,4 @@ mlp_biases_init = Constant(0.01)
 # use adadelta, so no learning_rate or momentum
 batch_size = 200
 
-valid_set = 'cuts/test_times_0'
-
 max_splits = 100

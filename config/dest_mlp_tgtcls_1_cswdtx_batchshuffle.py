@@ -36,5 +36,4 @@ batch_size = 200
 
 shuffle_batch_size = 5000
 
-valid_set = 'cuts/test_times_0'
 max_splits = 100

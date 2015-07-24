@@ -55,6 +55,4 @@ dropout_inputs = VariableFilter(bricks=[Rectifier], name='output')
 # use adadelta, so no learning_rate or momentum
 batch_size = 200
 
-valid_set = 'cuts/test_times_0'
-
 max_splits = 100

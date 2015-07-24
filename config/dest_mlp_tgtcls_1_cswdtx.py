@@ -35,6 +35,3 @@ batch_size = 100
 
 use_cuts_for_training = True
 max_splits = 1
-
-valid_set = 'cuts/test_times_0'
-

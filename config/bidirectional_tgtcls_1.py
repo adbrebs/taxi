@@ -32,5 +32,4 @@ mlp_biases_init = Constant(0.01)
 batch_size = 20
 batch_sort_size = 20
 
-valid_set = 'cuts/large_valid'
 max_splits = 100

@@ -37,7 +37,6 @@ embed_weights_init = IsotropicGaussian(0.001)
 
 batch_size = 32
 
-valid_set = 'cuts/test_times_0'
 max_splits = 1
 num_cuts = 1000
 

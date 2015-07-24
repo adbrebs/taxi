@@ -98,17 +98,18 @@ class Stream(object):
         self.config = config
 
     def train(self, req_vars):
-        valid = TaxiDataset(self.config.valid_set, 'valid.hdf5', sources=('trip_id',))
-        valid_trips_ids = valid.get_data(None, slice(0, valid.num_examples))[0]
-
-        stream = TaxiDataset('train')
+        stream = TaxiDataset('train', data.traintest_ds)
 
         if hasattr(self.config, 'use_cuts_for_training') and self.config.use_cuts_for_training:
             stream = DataStream(stream, iteration_scheme=TaxiTimeCutScheme())
         else:
             stream = DataStream(stream, iteration_scheme=ShuffledExampleScheme(stream.num_examples))
 
-        stream = transformers.TaxiExcludeTrips(stream, valid_trips_ids)
+        if not data.tvt:
+            valid = TaxiDataset(data.valid_set, data.valid_ds, sources=('trip_id',))
+            valid_trips_ids = valid.get_data(None, slice(0, valid.num_examples))[0]
+            stream = transformers.TaxiExcludeTrips(stream, valid_trips_ids)
+
         stream = transformers.TaxiGenerateSplits(stream, max_splits=self.config.max_splits)
 
         if hasattr(self.config, 'shuffle_batch_size'):
@@ -128,7 +129,7 @@ class Stream(object):
         return stream
 
     def valid(self, req_vars):
-        stream = TaxiStream(self.config.valid_set, 'valid.hdf5')
+        stream = TaxiStream(data.valid_set, data.valid_ds)
 
         stream = transformers.taxi_add_datetime(stream)
         stream = transformers.Select(stream, tuple(v for v in req_vars if not v.endswith('_mask')))
@@ -139,7 +140,7 @@ class Stream(object):
         return stream
 
     def test(self, req_vars):
-        stream = TaxiStream('test')
+        stream = TaxiStream('test', data.traintest_ds)
         
         stream = transformers.taxi_add_datetime(stream)
         stream = transformers.taxi_remove_test_only_clients(stream)
