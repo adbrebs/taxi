@@ -1,5 +1,7 @@
 from theano import tensor
 
+from toolz import merge
+
 from blocks.bricks import application, MLP, Rectifier, Initializable, Softmax, Linear
 from blocks.bricks.parallel import Fork
 from blocks.bricks.recurrent import Bidirectional, LSTM
