@@ -27,12 +27,12 @@ embed_weights_init = IsotropicGaussian(0.01)
 weights_init = IsotropicGaussian(0.1) 
 biases_init = Constant(0.01)
 
-batch_size = 100
+batch_size = 300
 batch_sort_size = 20
 
 max_splits = 100
 
 # monitor_freq = 10000 # temporary, for finding good learning rate
 
-step_rule= Momentum(learning_rate=0.1, momentum=0.9)
+step_rule= Momentum(learning_rate=0.01, momentum=0.9)
 
