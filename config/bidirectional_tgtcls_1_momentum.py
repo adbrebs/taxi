@@ -32,5 +32,7 @@ batch_sort_size = 20
 
 max_splits = 100
 
-step_rule= Momentum(learning_rate=0.01, momentum=0.9)
+# monitor_freq = 10000 # temporary, for finding good learning rate
+
+step_rule= Momentum(learning_rate=0.1, momentum=0.9)
 
