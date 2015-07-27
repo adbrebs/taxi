@@ -37,7 +37,8 @@ class BidiRNN(Initializable):
 
         self.context_embedder = ContextEmbedder(config)
         
-        self.rec = SegregatedBidirectional(LSTM(dim=config.hidden_state_dim, name='recurrent'))
+        act = config.rec_activation() if hasattr(config, 'rec_activation') else None
+        self.rec = SegregatedBidirectional(LSTM(dim=config.hidden_state_dim, activation=act, name='recurrent'))
 
         self.fwd_fork = Fork([name for name in self.rec.prototype.apply.sequences if name!='mask'],
                              prototype=Linear(), name='fwd_fork')
