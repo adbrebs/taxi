@@ -45,14 +45,14 @@ representation_activation = Tanh
 normalize_representation = True
 
 
-batch_size = 32
+batch_size = 64
 batch_sort_size = 20
 
 max_splits = 100
 num_cuts = 1000
 
-train_candidate_size = 300
-valid_candidate_size = 300
-test_candidate_size = 300
+train_candidate_size = 100
+valid_candidate_size = 100
+test_candidate_size = 100
 
 step_rule = Momentum(learning_rate=0.01, momentum=0.9)

@@ -27,10 +27,11 @@ embed_weights_init = IsotropicGaussian(0.01)
 weights_init = IsotropicGaussian(0.1) 
 biases_init = Constant(0.01)
 
-batch_size = 200
+batch_size = 400
 batch_sort_size = 20
 
 max_splits = 100
+train_max_len = 500
 
 # monitor_freq = 10000 # temporary, for finding good learning rate
 

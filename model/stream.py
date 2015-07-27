@@ -1,4 +1,4 @@
-from fuel.transformers import Batch, Padding, Mapping, SortMapping, Unpack, MultiProcessing
+from fuel.transformers import Batch, Padding, Mapping, SortMapping, Unpack, MultiProcessing, Filter
 from fuel.streams import DataStream
 from fuel.schemes import ConstantScheme, ShuffledExampleScheme
 
@@ -30,6 +30,12 @@ class StreamRec(object):
             stream = transformers.TaxiGenerateSplits(stream, max_splits=self.config.max_splits)
         elif not data.tvt:
             stream = transformers.add_destination(stream)
+
+        if hasattr(self.config, 'train_max_len'):
+            idx = stream.sources.index('latitude')
+            def max_len_filter(x):
+                return len(x[idx]) <= self.config.train_max_len
+            stream = Filter(stream, max_len_filter)
 
         stream = transformers.TaxiExcludeEmptyTrips(stream)
         stream = transformers.taxi_add_datetime(stream)
