@@ -45,11 +45,11 @@ normalize_representation = True
 
 step_rule = Momentum(learning_rate=0.01, momentum=0.9)
 
-batch_size = 100
-batch_sort_size = 20
+batch_size = 1000
+# batch_sort_size = 20
 
 max_splits = 100
 
-train_candidate_size = 1000
-valid_candidate_size = 1000
-test_candidate_size = 1000
+train_candidate_size = 5000
+valid_candidate_size = 5000
+test_candidate_size = 5000
