@@ -28,7 +28,7 @@ embed_weights_init = IsotropicGaussian(0.01)
 mlp_weights_init = IsotropicGaussian(0.1) 
 mlp_biases_init = Constant(0.01)
 
-step_rule = Momentum(learning_rate=0.01, momentum=0.9)
+step_rule = Momentum(learning_rate=0.001, momentum=0.9)
 
 batch_size = 200
 
