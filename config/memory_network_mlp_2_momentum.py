@@ -1,4 +1,5 @@
 from blocks.initialization import IsotropicGaussian, Constant
+from blocks.algorithms import Momentum
 
 from blocks.bricks import Tanh
 
