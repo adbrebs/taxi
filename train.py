@@ -114,14 +114,15 @@ if __name__ == "__main__":
     extensions=[TrainingDataMonitoring(monitored, prefix='train', every_n_batches=monitor_freq),
                 DataStreamMonitoring(valid_monitored, valid_stream,
                                      prefix='valid',
-                                     every_n_batches=monitor_freq),
+                                     every_n_batches=monitor_freq,
+                                     after_epoch=False),
                 Printing(every_n_batches=monitor_freq),
                 FinishAfter(every_n_batches=10000000),
 
                 SaveLoadParams(dump_path, cg,
                                before_training=True,        # before training -> load params
                                every_n_batches=monitor_freq,# every N batches -> save params
-                               after_epoch=True,            # after epoch -> save params
+                               after_epoch=False,
                                after_training=True,         # after training -> save params
                                ),
 
