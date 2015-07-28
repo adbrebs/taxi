@@ -41,17 +41,15 @@ candidate_encoder.dim_embeddings = dim_embeddings
 representation_size = 500
 representation_activation = Tanh
 
-normalize_representation = False
+normalize_representation = True
 
-step_rule = Momentum(learning_rate=0.1, momentum=0.9)
+step_rule = Momentum(learning_rate=0.001, momentum=0.9)
 
-batch_size = 10000
+batch_size = 5000
 # batch_sort_size = 20
-
-monitor_freq = 1000
 
 max_splits = 200
 
-train_candidate_size = 20000
-valid_candidate_size = 20000
-test_candidate_size = 20000
+train_candidate_size = 10000
+valid_candidate_size = 10000
+test_candidate_size = 10000

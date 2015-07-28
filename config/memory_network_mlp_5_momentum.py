@@ -24,7 +24,7 @@ class MLPConfig(object):
 
 prefix_encoder = MLPConfig()
 prefix_encoder.dim_input = n_begin_end_pts * 2 * 2 + sum(x for (_, _, x) in dim_embeddings)
-prefix_encoder.dim_hidden = [500]
+prefix_encoder.dim_hidden = [100]
 prefix_encoder.weights_init = IsotropicGaussian(0.01)
 prefix_encoder.biases_init = Constant(0.001)
 prefix_encoder.embed_weights_init = embed_weights_init
@@ -32,13 +32,13 @@ prefix_encoder.dim_embeddings = dim_embeddings
 
 candidate_encoder = MLPConfig()
 candidate_encoder.dim_input = n_begin_end_pts * 2 * 2 + sum(x for (_, _, x) in dim_embeddings)
-candidate_encoder.dim_hidden = [500]
+candidate_encoder.dim_hidden = [100]
 candidate_encoder.weights_init = IsotropicGaussian(0.01)
 candidate_encoder.biases_init = Constant(0.001)
 candidate_encoder.embed_weights_init = embed_weights_init
 candidate_encoder.dim_embeddings = dim_embeddings
 
-representation_size = 500
+representation_size = 100
 representation_activation = Tanh
 
 normalize_representation = False
