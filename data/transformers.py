@@ -187,7 +187,7 @@ class _window_helper(object):
 
         if x.shape[0] < self.window_len:
             x = numpy.concatenate(
-                [x, numpy.full((self.window_len - x.shape[0],), x[-1])])
+                [numpy.full((self.window_len - x.shape[0],), x[0]), x])
             
         y = [x[i: i+x.shape[0]-self.window_len+1][:, None]
              for i in range(self.window_len)]
