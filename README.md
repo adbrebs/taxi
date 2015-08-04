@@ -8,8 +8,8 @@ https://www.kaggle.com/c/pkdd-15-predict-taxi-service-trajectory-i
 We used the following packages developped at the MILA lab:
 
 * Theano. A general GPU-accelerated python math library, with an interface similar to numpy (see [3, 4]). http://deeplearning.net/software/theano/
-* Blocks. A deep-learning and neural network framework for Python based on Theano. https://github.com/mila-udem/blocks
-* Fuel. A data pipelining framework for Blocks. https://github.com/mila-udem/fuel 
+* Blocks. A deep-learning and neural network framework for Python based on Theano. As Blocks evolves very rapidly, we suggest you use commit `1e0aca9171611be4df404129d91a991354e67730`, which we had the code working on. https://github.com/mila-udem/blocks
+* Fuel. A data pipelining framework for Blocks. Same that for Blocks, we suggest you use commit `ed725a7ff9f3d080ef882d4ae7e4373c4984f35a`. https://github.com/mila-udem/fuel 
 
 We also used the scikit-learn Python library for their mean-shift clustering algorithm. numpy, cPickle and h5py are also used at various places.
 
