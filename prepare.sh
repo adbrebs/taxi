@@ -31,8 +31,8 @@ python_import(){
 
 python_import h5py 2.5.0
 python_import theano 0.7.0.dev
-python_import fuel 0.0.1
-python_import blocks 0.0.1
+python_import fuel 0.0.1-ed725a7ff9f3d080ef882d4ae7e4373c4984f35a
+python_import blocks 0.0.1-1e0aca9171611be4df404129d91a991354e67730
 python_import sklearn 0.16.1
 
 
