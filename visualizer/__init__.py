@@ -109,10 +109,11 @@ class Path(EGJ):
 
 
 class Vlist(EGJ, list):
-    def __init__(self, cluster=False, heatmap=False, *args):
+    def __init__(self, cluster=False, heatmap=False, distrib=False, *args):
         list.__init__(self, *args)
         self.cluster = cluster
         self.heatmap = heatmap
+        self.distrib = distrib
 
     def type(self):
         ts = self.cluster + self.heatmap + self.distrib 
