@@ -329,6 +329,27 @@ app.dataDisplay.clusterStyle = function(feature, resolution){
 	return style;
 };
 
+app.dataDisplay.pointDistributionStyle = function(feature, resolution){
+	var p = feature.get('info');
+	var red = 0;
+	var green = 0;
+	if(p < 0.5){
+		green = 255;
+		red = Math.round(p*2*255);
+	} else {
+		red = 255;
+		green = Math.round((1-p)*2*255);
+	}
+	return [ new ol.style.Style({
+		image: new ol.style.Circle({
+			radius: 5,
+			fill: new ol.style.Fill({
+				color: 'rgb('+red+','+green+',0)'
+			})
+		})
+	}) ];
+};
+
 app.dataDisplay.preprocess = function(egj){
 	var source = new ol.source.GeoJSON({
 		projection: 'EPSG:3857',
@@ -355,6 +376,11 @@ app.dataDisplay.preprocess = function(egj){
 			source: source,
 			blur: app.dataDisplay.heatmapBlur,
 			radius: app.dataDisplay.heatmapRadius
+		});
+	} else if(egj.type == 'point distribution'){
+		return new ol.layer.Vector({
+			source: source,
+			style: app.dataDisplay.pointDistributionStyle
 		});
 	}
 };

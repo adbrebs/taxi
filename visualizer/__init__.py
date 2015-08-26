@@ -115,12 +115,16 @@ class Vlist(EGJ, list):
         self.heatmap = heatmap
 
     def type(self):
-        if self.cluster or self.heatmap:
+        ts = self.cluster + self.heatmap + self.distrib 
+        assert ts <= 1
+        if ts > 0:
             if all(isinstance(c, Point) for c in self):
                 if self.cluster:
                     return 'cluster'
                 elif self.heatmap:
                     return 'heatmap'
+                elif self.distrib:
+                    return 'point distribution'
             else:
                 raise ValueError('Building a %s with something that is not a Point' % ('cluster' if self.cluster else 'heatmap'))
         else:

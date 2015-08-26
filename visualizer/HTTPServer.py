@@ -113,14 +113,15 @@ class VisualizerHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         return f
 
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        print >>sys.stderr, 'Usage: %s port' % sys.argv[0]
+    if len(sys.argv) < 2:
+        print >>sys.stderr, 'Usage: %s port [--no-hdf5]' % sys.argv[0]
 
-    print >>sys.stderr, 'Loading dataset...',
-    path = os.path.join(data.path, 'data.hdf5')
-    train_data = TaxiDataset('train')
-    test_data = TaxiDataset('test')
-    print >>sys.stderr, 'done'
+    if '--no-hdf5' not in sys.argv:
+        print >>sys.stderr, 'Loading dataset...',
+        path = os.path.join(data.path, 'data.hdf5')
+        train_data = TaxiDataset('train')
+        test_data = TaxiDataset('test')
+        print >>sys.stderr, 'done'
 
     httpd = SocketServer.TCPServer(('', int(sys.argv[1])), VisualizerHTTPRequestHandler)
     httpd.serve_forever()
